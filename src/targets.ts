@@ -5,7 +5,7 @@ import {CoreState, CortexM, CortexReg, CortexSpecialReg, Device} from "dapjs";
  * can be found in the pyOCD or DAPLink sources, or compiled from the source that can be found here:
  * https://github.com/mbedmicro/FlashAlgo.
  *
- * TODO: add JavaScript as a third target for FlashAlgo's output.
+ * **TODO**: add JavaScript as a third target for FlashAlgo's output.
  */
 interface IFlashAlgo {
     load_address: number;
@@ -90,10 +90,15 @@ export class K64F extends CortexM {
      * Initialise the flash driver on the chip. Must be called before any of the other
      * flash-related methods.
      *
-     * TODO: check that this has been called before calling other flash methods.
+     * **TODO**: check that this has been called before calling other flash methods.
      */
     public async flashInit() {
         await this.halt();
+
+        // setTargetState("program")
+        await this.resetStopOnReset();
+        await this.writeCoreRegister(CortexReg.XPSR, 0x1000000);
+
         await this.writeCoreRegister(CortexReg.R9, this.flashAlgo.staticBase);
 
         const result = await this.runCode(
@@ -112,7 +117,7 @@ export class K64F extends CortexM {
     /**
      * Upload a binary blob to (non-volatile) flash memory, at the specified address. Uses the
      * flashing algorithm relevant to the particular part - if you just want to upload to RAM,
-     * use this.writeBlock.
+     * use `this.writeBlock`.
      *
      * @param code an array of 32-bit words representing the binary data to be uploaded.
      * @param address starting address of the location in memory to upload to.
@@ -122,14 +127,13 @@ export class K64F extends CortexM {
     }
 
     /**
-     * Erase ALL data stored in flash on the chip.
+     * Erase _all_ data stored in flash on the chip.
      */
     public async eraseChip() {
         const result = await this.runCode(
             this.flashAlgo.code,
             this.flashAlgo.load_address,
             this.flashAlgo.pcEraseAll,
-            this.flashAlgo.beginStack,
             this.flashAlgo.load_address - 1,
         );
         const finalPC = await this.readCoreRegister(CortexReg.PC);
@@ -138,13 +142,28 @@ export class K64F extends CortexM {
         return result;
     }
 
+    private async resetStopOnReset() {
+        console.log("reset stop on Reset");
+
+        await this.halt();
+
+        const demcr = await this.readMem(CortexSpecialReg.DEMCR);
+
+        await this.writeMem(CortexSpecialReg.DEMCR, demcr | CortexSpecialReg.DEMCR_VC_CORERESET);
+        await this.reset();
+
+        while (!(await this.isHalted())) { /* spin */ }
+
+        await this.writeMem(CortexSpecialReg.DEMCR, demcr);
+    }
+
     /**
      * Run specified machine code natively on the device. Assumes usual C calling conventions
      * - returns the value of r0 once the program has terminated. The program _must_ terminate
      * in order for this function to return. This can be achieved by placing a `bkpt`
      * instruction at the end of the function.
      *
-     * FIXME: currently causes a hard fault when the core is resumed after successfully uploading
+     * **FIXME**: currently causes a hard fault when the core is resumed after successfully uploading
      * the blob to memory and setting core registers.
      *
      * @param code array containing the machine code (32-bit words).
@@ -155,7 +174,7 @@ export class K64F extends CortexM {
      *
      * @returns A promise for the value of r0 on completion of the function call.
      */
-    private async runCode(code: number[], address: number,  pc: number, sp: number, lr: number) {
+    private async runCode(code: number[], address: number,  pc: number, lr: number, sp: number = null) {
         // upload flashing algorithm to flashAlgo.load_address
         await this.halt();
 
@@ -165,10 +184,13 @@ export class K64F extends CortexM {
         // write registers
         await this.writeCoreRegister(CortexReg.PC, pc);
         await this.writeCoreRegister(CortexReg.LR, lr);
-        await this.writeCoreRegister(CortexReg.SP, sp);
+
+        if (sp) {
+            await this.writeCoreRegister(CortexReg.SP, sp);
+        }
 
         // resume core
-        // await this.resume();
+        await this.resume();
 
         while (await this.getState() === CoreState.TARGET_RUNNING) { /* empty */ }
 

@@ -1,9 +1,9 @@
-import {CortexReg, Device, MachineState, machineStateToString} from "dapjs";
+import {CortexReg, Device, IMachineState, machineStateToString} from "dapjs";
 import HID from "webhid";
 import {K64F} from "./targets";
 
 const logMachineState = (lbl: string) => {
-    return (s: MachineState) => {
+    return (s: IMachineState) => {
         console.log(machineStateToString(s).replace(/^/gm, lbl + ": "));
         return s;
     };
@@ -28,15 +28,21 @@ $(() => {
             dev = new Device(hid);
             cm = new K64F(dev);
 
+            await cm.init();
             await cm.halt();
+
+            console.log('Snapshotting');
+
             const st = await cm.snapshotMachineState();
             logMachineState("init")(st);
 
             console.log("Resuming core.");
             await cm.resume();
+
+            
         } catch (e) {
             console.error(e);
-            dev.close();
+            await dev.close();
         }
     });
 
@@ -44,7 +50,9 @@ $(() => {
         // flash the microcontroller we have connected.
         console.log("Flashing mcu :)");
 
+        console.log("Initing flash");
         const r0 = await cm.flashInit();
+        console.log("erasing");
         await cm.eraseChip();
         await dev.close();
     });

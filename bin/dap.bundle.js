@@ -69,15 +69,50 @@
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
-function readUInt32LE(b, idx) {
+exports.readUInt32LE = function (b, idx) {
     return (b[idx] |
         (b[idx + 1] << 8) |
         (b[idx + 2] << 16) |
         (b[idx + 3] << 24)) >>> 0;
-}
-exports.readUInt32LE = readUInt32LE;
-function bufferConcat(bufs) {
+};
+exports.bufferConcat = function (bufs) {
     var len = 0;
     for (var _i = 0, bufs_1 = bufs; _i < bufs_1.length; _i++) {
         var b = bufs_1[_i];
@@ -91,37 +126,25 @@ function bufferConcat(bufs) {
         len += b.length;
     }
     return r;
-}
-exports.bufferConcat = bufferConcat;
-function delay(t) {
-    return new Promise(function (resolve) {
-        setTimeout(resolve, t);
+};
+exports.delay = function (t) { return __awaiter(_this, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        return [2 /*return*/, new Promise(function (resolve) {
+                setTimeout(resolve, t);
+            })];
     });
-}
-exports.delay = delay;
-function error(msg, reconnect, wait) {
-    if (reconnect === void 0) { reconnect = false; }
-    if (wait === void 0) { wait = false; }
-    var err = new Error(msg);
-    if (reconnect)
-        err.dapReconnect = true;
-    if (wait)
-        err.dapWait = true;
-    throw err;
-}
-exports.error = error;
-function addInt32(arr, val) {
-    if (!arr)
+}); };
+exports.addInt32 = function (arr, val) {
+    if (!arr) {
         arr = [];
+    }
     arr.push(val & 0xff, (val >> 8) & 0xff, (val >> 16) & 0xff, (val >> 24) & 0xff);
     return arr;
-}
-exports.addInt32 = addInt32;
-function hex(v) {
+};
+exports.hex = function (v) {
     return "0x" + v.toString(16);
-}
-exports.hex = hex;
-function rid(v) {
+};
+exports.rid = function (v) {
     var m = [
         "DP_0x0",
         "DP_0x4",
@@ -133,102 +156,62 @@ function rid(v) {
         "AP_0xC",
     ];
     return m[v] || "?";
-}
-exports.rid = rid;
-function bank(addr) {
+};
+exports.bank = function (addr) {
     var APBANKSEL = 0x000000f0;
     return (addr & APBANKSEL) | (addr & 0xff000000);
-}
-exports.bank = bank;
-function apReg(r, mode) {
+};
+exports.apReg = function (r, mode) {
     var v = r | mode | 1 /* AP_ACC */;
     return (4 + ((v & 0x0c) >> 2));
-}
-exports.apReg = apReg;
-function bufToUint32Array(buf) {
-    assert((buf.length & 3) == 0);
+};
+exports.bufToUint32Array = function (buf) {
+    exports.assert((buf.length & 3) === 0);
     var r = [];
-    if (!buf.length)
+    if (!buf.length) {
         return r;
+    }
     r[buf.length / 4 - 1] = 0;
-    for (var i = 0; i < r.length; ++i)
-        r[i] = readUInt32LE(buf, i << 2);
+    for (var i = 0; i < r.length; ++i) {
+        r[i] = exports.readUInt32LE(buf, i << 2);
+    }
     return r;
-}
-exports.bufToUint32Array = bufToUint32Array;
-function assert(cond) {
+};
+exports.assert = function (cond) {
     if (!cond) {
         throw new Error("assertion failed");
     }
-}
-exports.assert = assert;
-function regRequest(regId, isWrite) {
+};
+exports.regRequest = function (regId, isWrite) {
     if (isWrite === void 0) { isWrite = false; }
     var request = !isWrite ? 2 /* READ */ : 0 /* WRITE */;
-    if (regId < 4)
+    if (regId < 4) {
         request |= 0 /* DP_ACC */;
-    else
+    }
+    else {
         request |= 1 /* AP_ACC */;
+    }
     request |= (regId & 3) << 2;
     return request;
-}
-exports.regRequest = regRequest;
-function hexBytes(bytes) {
+};
+exports.hexBytes = function (bytes) {
     var chk = 0;
     var r = ":";
     bytes.forEach(function (b) { return chk += b; });
     bytes.push((-chk) & 0xff);
     bytes.forEach(function (b) { return r += ("0" + b.toString(16)).slice(-2); });
     return r.toUpperCase();
-}
-exports.hexBytes = hexBytes;
-function promiseWhile(fn) {
-    var loop = function (cond) {
-        return cond ? fn().then(loop) : Promise.resolve();
-    };
-    return loop(true);
-}
-function promiseIter(elts, f) {
-    var i = -1;
-    var loop = function () {
-        if (++i >= elts.length)
-            return Promise.resolve();
-        return f(elts[i], i).then(loop);
-    };
-    return loop();
-}
-function promiseMapSeq(elts, f) {
-    var res = [];
-    return promiseIter(elts, function (v) { return f(v).then(function (z) { res.push(z); }); })
-        .then(function () { return res; });
-}
-function range(n) {
-    var r = [];
-    for (var i = 0; i < n; ++i)
-        r.push(i);
-    return r;
-}
-function arrToString(arr) {
+};
+var arrToString = function (arr) {
     var r = "";
     for (var i = 0; i < arr.length; ++i) {
         r += ("0000" + i).slice(-4) + ": " + ("00000000" + (arr[i] >>> 0).toString(16)).slice(-8) + "\n";
     }
     return r;
-}
-function machineStateToString(s) {
+};
+exports.machineStateToString = function (s) {
     return "REGS:\n" + arrToString(s.registers) + "\n\nSTACK:\n" + arrToString(s.stack);
-}
-exports.machineStateToString = machineStateToString;
-function time(lbl, f) {
-    return function () {
-        var n = Date.now();
-        return f().then(function (v) {
-            var d = Date.now() - n;
-            console.log(lbl + ": " + d + "ms");
-            return v;
-        });
-    };
-}
+};
 //# sourceMappingURL=util.js.map
 
 /***/ }),
@@ -252,58 +235,129 @@ exports.machineStateToString = util_1.machineStateToString;
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var dapjs_1 = __webpack_require__(1);
 var webhid_1 = __webpack_require__(7);
 var targets_1 = __webpack_require__(8);
-function logMachineState(lbl) {
+var logMachineState = function (lbl) {
     return function (s) {
         console.log(dapjs_1.machineStateToString(s).replace(/^/gm, lbl + ": "));
         return s;
     };
-}
+};
 $(function () {
     var hid;
     var dev;
     var cm;
-    $('#click').click(function () {
-        navigator.usb.requestDevice({ filters: [{ vendorId: 0x0d28 }] })
-            .then(function (dev) {
-            hid = new webhid_1.default(dev);
-            return hid.open();
-        })
-            .then(function () {
-            $('#connect').prop('disabled', false);
+    $("#click").click(function () { return __awaiter(_this, void 0, void 0, function () {
+        var device;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, navigator.usb.requestDevice({ filters: [{ vendorId: 0x0d28 }] })];
+                case 1:
+                    device = _a.sent();
+                    hid = new webhid_1.default(device);
+                    return [4 /*yield*/, hid.open()];
+                case 2:
+                    _a.sent();
+                    $("#connect").prop("disabled", false);
+                    return [2 /*return*/];
+            }
         });
-    });
-    $('#connect').click(function () {
-        dev = new dapjs_1.Device(hid);
-        cm = new targets_1.K64F(dev);
-        var st;
-        cm.init()
-            .then(function () { return cm.halt(); })
-            .then(function () { return cm.snapshotMachineState(); })
-            .then(logMachineState("init"))
-            .then(function (s) {
-            console.log('Resuming core.');
-            cm.resume();
-        })
-            .catch(function (e) {
-            console.error(e);
-            return dev.close();
+    }); });
+    $("#connect").click(function () { return __awaiter(_this, void 0, void 0, function () {
+        var st, e_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 5, , 7]);
+                    dev = new dapjs_1.Device(hid);
+                    cm = new targets_1.K64F(dev);
+                    return [4 /*yield*/, cm.init()];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, cm.halt()];
+                case 2:
+                    _a.sent();
+                    console.log('Snapshotting');
+                    return [4 /*yield*/, cm.snapshotMachineState()];
+                case 3:
+                    st = _a.sent();
+                    logMachineState("init")(st);
+                    console.log("Resuming core.");
+                    return [4 /*yield*/, cm.resume()];
+                case 4:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 5:
+                    e_1 = _a.sent();
+                    console.error(e_1);
+                    return [4 /*yield*/, dev.close()];
+                case 6:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
         });
-    });
-    $('#flash').click(function () {
-        // flash the microcontroller we have connected.
-        console.log('Flashing mcu ;)');
-        cm.flashInit()
-            .then(function (r0) {
-            return cm.eraseChip();
-        })
-            .then(function () {
-            dev.close();
+    }); });
+    $("#flash").click(function () { return __awaiter(_this, void 0, void 0, function () {
+        var r0;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    // flash the microcontroller we have connected.
+                    console.log("Flashing mcu :)");
+                    console.log("Initing flash");
+                    return [4 /*yield*/, cm.flashInit()];
+                case 1:
+                    r0 = _a.sent();
+                    console.log("erasing");
+                    return [4 /*yield*/, cm.eraseChip()];
+                case 2:
+                    _a.sent();
+                    return [4 /*yield*/, dev.close()];
+                case 3:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
         });
-    });
+    }); });
 });
 
 
@@ -349,19 +403,36 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var util_1 = __webpack_require__(0);
 var debug_1 = __webpack_require__(4);
-exports.CPUID_IMPLEMENTER_MASK = 0xff000000, exports.CPUID_IMPLEMENTER_POS = 24, exports.CPUID_VARIANT_MASK = 0x00f00000, exports.CPUID_VARIANT_POS = 20, exports.CPUID_ARCHITECTURE_MASK = 0x000f0000, exports.CPUID_ARCHITECTURE_POS = 16, exports.CPUID_PARTNO_MASK = 0x0000fff0, exports.CPUID_PARTNO_POS = 4, exports.CPUID_REVISION_MASK = 0x0000000f, exports.CPUID_REVISION_POS = 0;
+var util_1 = __webpack_require__(0);
+exports.CPUID_IMPLEMENTER_MASK = 0xff000000;
+exports.CPUID_IMPLEMENTER_POS = 24;
+exports.CPUID_VARIANT_MASK = 0x00f00000;
+exports.CPUID_VARIANT_POS = 20;
+exports.CPUID_ARCHITECTURE_MASK = 0x000f0000;
+exports.CPUID_ARCHITECTURE_POS = 16;
+exports.CPUID_PARTNO_MASK = 0x0000fff0;
+exports.CPUID_PARTNO_POS = 4;
+exports.CPUID_REVISION_MASK = 0x0000000f;
+exports.CPUID_REVISION_POS = 0;
 exports.CoreNames = new Map();
-exports.CoreNames.set(3104 /* CortexM0 */, 'Cortex-M0');
-exports.CoreNames.set(3105 /* CortexM1 */, 'Cortex-M1');
-exports.CoreNames.set(3107 /* CortexM3 */, 'Cortex-M3');
-exports.CoreNames.set(3108 /* CortexM4 */, 'Cortex-M4');
-exports.CoreNames.set(3168 /* CortexM0p */, 'Cortex-M0+');
+exports.CoreNames.set(3104 /* CortexM0 */, "Cortex-M0");
+exports.CoreNames.set(3105 /* CortexM1 */, "Cortex-M1");
+exports.CoreNames.set(3107 /* CortexM3 */, "Cortex-M3");
+exports.CoreNames.set(3108 /* CortexM4 */, "Cortex-M4");
+exports.CoreNames.set(3168 /* CortexM0p */, "Cortex-M0+");
+/**
+ * Abstraction of an ARM Cortex M CPU from a programmer's perspective. Provides functionality
+ * for setting breakpoints, reading general-purpose registers, reading from memory and stopping
+ * and starting the CPU.
+ */
 var CortexM = (function () {
     function CortexM(device) {
         this.dev = device;
     }
+    /**
+     * Initialise the debug access port on the device, and read the device type.
+     */
     CortexM.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -381,9 +452,14 @@ var CortexM = (function () {
             });
         });
     };
+    /**
+     * Read the current state of the CPU.
+     *
+     * @returns A member of the `CoreState` enum corresponding to the current status of the CPU.
+     */
     CortexM.prototype.getState = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var dhcsr, new_dhcsr;
+            var dhcsr, newDHCSR;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
@@ -392,8 +468,8 @@ var CortexM = (function () {
                         if (!(dhcsr & 33554432 /* S_RESET_ST */)) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
                     case 2:
-                        new_dhcsr = _a.sent();
-                        if (new_dhcsr & 33554432 /* S_RESET_ST */ && !(new_dhcsr & 16777216 /* S_RETIRE_ST */)) {
+                        newDHCSR = _a.sent();
+                        if (newDHCSR & 33554432 /* S_RESET_ST */ && !(newDHCSR & 16777216 /* S_RETIRE_ST */)) {
                             return [2 /*return*/, 0 /* TARGET_RESET */];
                         }
                         _a.label = 3;
@@ -415,9 +491,13 @@ var CortexM = (function () {
             });
         });
     };
+    /**
+     * Read the CPUID register from the CPU, and interpret its meaning in terms of implementer,
+     * architecture and core type.
+     */
     CortexM.prototype.readCoreType = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var cpuid, implementer, arch, core_type;
+            var cpuid, implementer, arch, coreType;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.readMem(3758157056 /* CPUID */)];
@@ -425,31 +505,35 @@ var CortexM = (function () {
                         cpuid = _a.sent();
                         implementer = ((cpuid & exports.CPUID_IMPLEMENTER_MASK) >> exports.CPUID_IMPLEMENTER_POS);
                         arch = ((cpuid & exports.CPUID_ARCHITECTURE_MASK) >> exports.CPUID_ARCHITECTURE_POS);
-                        core_type = ((cpuid & exports.CPUID_PARTNO_MASK) >> exports.CPUID_PARTNO_POS);
-                        console.log("Found an ARM " + exports.CoreNames.get(core_type));
-                        return [2 /*return*/];
+                        coreType = ((cpuid & exports.CPUID_PARTNO_MASK) >> exports.CPUID_PARTNO_POS);
+                        console.log("Found an ARM " + exports.CoreNames.get(coreType));
+                        return [2 /*return*/, [implementer, arch, coreType]];
                 }
             });
         });
     };
+    /**
+     * Set up (and disable) the Flash Patch & Breakpoint unit. It will be enabled when
+     * the first breakpoint is set.
+     *
+     * Also reads the number of available hardware breakpoints.
+     */
     CortexM.prototype.setupFpb = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var fpcr, nb_code, nb_lit, i, b;
+            var fpcr, nbCode, nbLit, i, b;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.readMem(3758104576 /* FP_CTRL */)];
                     case 1:
                         fpcr = _a.sent();
-                        nb_code = ((fpcr >> 8) & 0x70) | ((fpcr >> 4) & 0xf);
-                        nb_lit = (fpcr >> 7) & 0xf;
-                        if (nb_code == 0) {
-                        }
-                        console.log(nb_code + " hardware breakpoints, " + nb_lit + " literal comparators");
+                        nbCode = ((fpcr >> 8) & 0x70) | ((fpcr >> 4) & 0xf);
+                        nbLit = (fpcr >> 7) & 0xf;
+                        console.log(nbCode + " hardware breakpoints, " + nbLit + " literal comparators");
                         this.breakpoints = [];
                         i = 0;
                         _a.label = 2;
                     case 2:
-                        if (!(i < nb_code)) return [3 /*break*/, 5];
+                        if (!(i < nbCode)) return [3 /*break*/, 5];
                         b = new debug_1.Breakpoint(this, i);
                         b.write(0);
                         return [4 /*yield*/, this.breakpoints.push(b)];
@@ -467,24 +551,34 @@ var CortexM = (function () {
             });
         });
     };
+    /**
+     * Set breakpoints at specified memory addresses.
+     *
+     * @param addrs An array of memory addresses at which to set breakpoints.
+     */
     CortexM.prototype.setBreakpoints = function (addrs) {
         return __awaiter(this, void 0, void 0, function () {
-            function mapAddr(addr) {
-                if (addr === null)
-                    return 0;
-                if ((addr & 3) == 2)
-                    return 0x80000001 | (addr & ~3);
-                else if ((addr & 3) == 0)
-                    return 0x40000001 | (addr & ~3);
-                else
-                    console.error("uneven address");
-            }
-            var i;
+            var mapAddr, i;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (addrs.length > this.breakpoints.length)
+                        mapAddr = function (addr) {
+                            if (addr === null) {
+                                return 0;
+                            }
+                            else if ((addr & 3) === 2) {
+                                return 0x80000001 | (addr & ~3);
+                            }
+                            else if ((addr & 3) === 0) {
+                                return 0x40000001 | (addr & ~3);
+                            }
+                            else {
+                                console.error("uneven address");
+                            }
+                        };
+                        if (addrs.length > this.breakpoints.length) {
                             console.error("not enough hw breakpoints");
+                        }
                         return [4 /*yield*/, this.debugEnable()];
                     case 1:
                         _a.sent();
@@ -510,16 +604,48 @@ var CortexM = (function () {
             });
         });
     };
+    /**
+     * Enable or disable the Flash Patch and Breakpoint unit (FPB).
+     *
+     * @param enabled
+     */
     CortexM.prototype.setFpbEnabled = function (enabled) {
         if (enabled === void 0) { enabled = true; }
-        return this.writeMem(3758104576 /* FP_CTRL */, 2 /* FP_CTRL_KEY */ | (enabled ? 1 : 0));
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.writeMem(3758104576 /* FP_CTRL */, 2 /* FP_CTRL_KEY */ | (enabled ? 1 : 0))];
+            });
+        });
     };
+    /**
+     * Write a 32-bit word to the specified (word-aligned) memory address.
+     *
+     * @param addr Memory address to write to
+     * @param data Data to write (values above 2**32 will be truncated)
+     */
     CortexM.prototype.writeMem = function (addr, data) {
-        var _this = this;
-        return this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */)
-            .then(function () { return _this.dev.writeAp(4 /* TAR */, addr); })
-            .then(function () { return _this.dev.writeAp(12 /* DRW */, data); });
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.dev.writeAp(12 /* DRW */, data)];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
+    /**
+     * Read a 32-bit word from the specified (word-aligned) memory address.
+     *
+     * @param addr Memory address to read from.
+     */
     CortexM.prototype.readMem = function (addr) {
         return __awaiter(this, void 0, void 0, function () {
             var e_1;
@@ -550,6 +676,13 @@ var CortexM = (function () {
             });
         });
     };
+    /**
+     * Reads a block of memory from the specified memory address.
+     *
+     * @param addr Address to read from
+     * @param words Number of words to read
+     * @param pageSize Memory page size
+     */
     CortexM.prototype.readBlock = function (addr, words, pageSize) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
@@ -557,18 +690,20 @@ var CortexM = (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        funs = [function () { return Promise.resolve(); }];
+                        funs = [function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+                                return [2 /*return*/, Promise.resolve()];
+                            }); }); }];
                         bufs = [];
                         end = addr + words * 4;
                         ptr = addr;
                         _loop_1 = function () {
                             var nextptr = ptr + pageSize;
-                            if (ptr == addr) {
+                            if (ptr === addr) {
                                 nextptr &= ~(pageSize - 1);
                             }
                             var len = Math.min(nextptr - ptr, end - ptr);
                             var ptr0 = ptr;
-                            util_1.assert((len & 3) == 0);
+                            util_1.assert((len & 3) === 0);
                             funs.push(function () { return __awaiter(_this, void 0, void 0, function () {
                                 var _a, _b;
                                 return __generator(this, function (_c) {
@@ -605,47 +740,21 @@ var CortexM = (function () {
             });
         });
     };
-    CortexM.prototype.readBlockCore = function (addr, words) {
-        return __awaiter(this, void 0, void 0, function () {
-            var lastSize, bufs, blocks, i, b;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
-                    case 2:
-                        _a.sent();
-                        lastSize = words % 15;
-                        if (lastSize == 0)
-                            lastSize = 15;
-                        bufs = [];
-                        blocks = [];
-                        i = 0;
-                        _a.label = 3;
-                    case 3:
-                        if (!(i < Math.ceil(words / 15))) return [3 /*break*/, 6];
-                        return [4 /*yield*/, this.dev.readRegRepeat(util_1.apReg(12 /* DRW */, 2 /* READ */), i == blocks.length - 1 ? lastSize : 15)];
-                    case 4:
-                        b = _a.sent();
-                        blocks.push(b);
-                        _a.label = 5;
-                    case 5:
-                        i++;
-                        return [3 /*break*/, 3];
-                    case 6: return [2 /*return*/, util_1.bufferConcat(blocks)];
-                }
-            });
-        });
-    };
+    /**
+     * Write a block of memory to the specified memory address.
+     *
+     * @param addr Memory address to write to.
+     * @param words Array of 32-bit words to write to memory.
+     */
     CortexM.prototype.writeBlock = function (addr, words) {
         return __awaiter(this, void 0, void 0, function () {
             var blSz, i;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (words.length == 0)
+                        if (words.length === 0) {
                             return [2 /*return*/];
+                        }
                         console.log("write block: 0x" + addr.toString(16) + " " + words.length + " len");
                         if (!(1 > 0)) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.writeBlockCore(addr, words)];
@@ -673,6 +782,238 @@ var CortexM = (function () {
             });
         });
     };
+    /**
+     * Read a core register from the CPU (e.g. r0...r15, pc, sp, lr, s0...)
+     *
+     * @param no Member of the `CortexReg` enum - an ARM Cortex CPU general-purpose register.
+     */
+    CortexM.prototype.readCoreRegister = function (no) {
+        return __awaiter(this, void 0, void 0, function () {
+            var v;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.writeMem(3758157300 /* DCRSR */, no)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
+                    case 2:
+                        v = _a.sent();
+                        util_1.assert(v & 65536 /* S_REGRDY */);
+                        return [4 /*yield*/, this.readMem(3758157304 /* DCRDR */)];
+                    case 3: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    /**
+     * Write a 32-bit word to the specified CPU general-purpose register.
+     *
+     * @param no Member of the `CortexReg` enum - an ARM Cortex CPU general-purpose register.
+     * @param val Value to be written.
+     */
+    CortexM.prototype.writeCoreRegister = function (no, val) {
+        return __awaiter(this, void 0, void 0, function () {
+            var v;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.writeMem(3758157304 /* DCRDR */, val)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.writeMem(3758157300 /* DCRSR */, no | 65536 /* DCRSR_REGWnR */)];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
+                    case 3:
+                        v = _a.sent();
+                        util_1.assert(v & 65536 /* S_REGRDY */);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Halt the CPU core.
+     */
+    CortexM.prototype.halt = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.writeMem(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */ | 2 /* C_HALT */)];
+            });
+        });
+    };
+    /**
+     * Resume the CPU core.
+     */
+    CortexM.prototype.resume = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.isHalted()];
+                    case 1:
+                        if (!_a.sent()) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.writeMem(3758157104 /* DFSR */, 4 /* DFSR_DWTTRAP */ | 2 /* DFSR_BKPT */ | 1 /* DFSR_HALTED */)];
+                    case 2:
+                        _a.sent();
+                        this.debugEnable();
+                        _a.label = 3;
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Find out whether the CPU is halted.
+     */
+    CortexM.prototype.isHalted = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var s;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.status()];
+                    case 1:
+                        s = _a.sent();
+                        return [2 /*return*/, s.isHalted];
+                }
+            });
+        });
+    };
+    /**
+     * Read the current status of the CPU.
+     *
+     * @returns Object containing the contents of the `DHCSR` register, the `DFSR` register, and a boolean value
+     * stating the current halted state of the CPU.
+     */
+    CortexM.prototype.status = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var dhcsr, dfsr;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
+                    case 1:
+                        dhcsr = _a.sent();
+                        return [4 /*yield*/, this.readMem(3758157104 /* DFSR */)];
+                    case 2:
+                        dfsr = _a.sent();
+                        return [2 /*return*/, {
+                                dfsr: dfsr,
+                                dhscr: dhcsr,
+                                isHalted: !!(dhcsr & 131072 /* S_HALT */),
+                            }];
+                }
+            });
+        });
+    };
+    /**
+     * Enable debugging on the target CPU.
+     */
+    CortexM.prototype.debugEnable = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.writeMem(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Reset the CPU core. This currently does a software reset - it is also technically possible to perform a 'hard'
+     * reset using the reset pin from the debugger.
+     */
+    CortexM.prototype.reset = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var dhcsr;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.writeMem(3758157068 /* NVIC_AIRCR */, 100270080 /* NVIC_AIRCR_VECTKEY */ | 4 /* NVIC_AIRCR_SYSRESETREQ */)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
+                    case 2:
+                        dhcsr = _a.sent();
+                        _a.label = 3;
+                    case 3:
+                        if (!((dhcsr & 33554432 /* S_RESET_ST */) !== 0)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
+                    case 4:
+                        dhcsr = _a.sent();
+                        return [3 /*break*/, 3];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Snapshot the current state of the CPU. Reads all general-purpose registers, and returns them in an array. This
+     * should also snapshot the current stack state, but given that the stack location varies between individual CPUs,
+     * this functionality should be moved somewhere else.
+     *
+     * **TODO**: remove the code about the stack.
+     */
+    CortexM.prototype.snapshotMachineState = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var state, i, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        state = {
+                            registers: [],
+                            stack: [],
+                        };
+                        i = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(i < 16)) return [3 /*break*/, 4];
+                        _a = state.registers;
+                        _b = i;
+                        return [4 /*yield*/, this.readCoreRegister(i)];
+                    case 2:
+                        _a[_b] = _c.sent();
+                        _c.label = 3;
+                    case 3:
+                        i++;
+                        return [3 /*break*/, 1];
+                    case 4: return [2 /*return*/, state];
+                }
+            });
+        });
+    };
+    CortexM.prototype.readBlockCore = function (addr, words) {
+        return __awaiter(this, void 0, void 0, function () {
+            var lastSize, bufs, blocks, i, b;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
+                    case 2:
+                        _a.sent();
+                        lastSize = words % 15;
+                        if (lastSize === 0) {
+                            lastSize = 15;
+                        }
+                        bufs = [];
+                        blocks = [];
+                        i = 0;
+                        _a.label = 3;
+                    case 3:
+                        if (!(i < Math.ceil(words / 15))) return [3 /*break*/, 6];
+                        return [4 /*yield*/, this.dev.readRegRepeat(util_1.apReg(12 /* DRW */, 2 /* READ */), i === blocks.length - 1 ? lastSize : 15)];
+                    case 4:
+                        b = _a.sent();
+                        blocks.push(b);
+                        _a.label = 5;
+                    case 5:
+                        i++;
+                        return [3 /*break*/, 3];
+                    case 6: return [2 /*return*/, util_1.bufferConcat(blocks)];
+                }
+            });
+        });
+    };
     CortexM.prototype.writeBlockCore = function (addr, words) {
         return __awaiter(this, void 0, void 0, function () {
             var blSz, reg, i, e_2;
@@ -686,8 +1027,7 @@ var CortexM = (function () {
                         return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
                     case 2:
                         _a.sent();
-                        blSz = 12 // with 15 we get strange errors
-                        ;
+                        blSz = 12;
                         reg = util_1.apReg(12 /* DRW */, 0 /* WRITE */);
                         i = 0;
                         _a.label = 3;
@@ -713,145 +1053,6 @@ var CortexM = (function () {
                     case 10: throw e_2;
                     case 11: return [3 /*break*/, 12];
                     case 12: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    CortexM.prototype.readCoreRegister = function (no) {
-        return __awaiter(this, void 0, void 0, function () {
-            var v;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.writeMem(3758157300 /* DCRSR */, no)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
-                    case 2:
-                        v = _a.sent();
-                        util_1.assert(v & 65536 /* S_REGRDY */);
-                        return [4 /*yield*/, this.readMem(3758157304 /* DCRDR */)];
-                    case 3: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    CortexM.prototype.writeCoreRegister = function (no, val) {
-        return __awaiter(this, void 0, void 0, function () {
-            var v;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.writeMem(3758157304 /* DCRDR */, val)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.writeMem(3758157300 /* DCRSR */, no | 65536 /* DCRSR_REGWnR */)];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
-                    case 3:
-                        v = _a.sent();
-                        util_1.assert(v & 65536 /* S_REGRDY */);
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    CortexM.prototype.halt = function () {
-        return this.writeMem(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */ | 2 /* C_HALT */);
-    };
-    CortexM.prototype.resume = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.isHalted()];
-                    case 1:
-                        if (!_a.sent()) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.writeMem(3758157104 /* DFSR */, 4 /* DFSR_DWTTRAP */ | 2 /* DFSR_BKPT */ | 1 /* DFSR_HALTED */)];
-                    case 2:
-                        _a.sent();
-                        this.debugEnable();
-                        _a.label = 3;
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    CortexM.prototype.isHalted = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var s;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.status()];
-                    case 1:
-                        s = _a.sent();
-                        return [2 /*return*/, s.isHalted];
-                }
-            });
-        });
-    };
-    CortexM.prototype.status = function () {
-        var _this = this;
-        return this.readMem(3758157296 /* DHCSR */)
-            .then(function (dhcsr) { return _this.readMem(3758157104 /* DFSR */)
-            .then(function (dfsr) { return ({
-            dhcsr: dhcsr,
-            dfsr: dfsr,
-            isHalted: !!(dhcsr & 131072 /* S_HALT */)
-        }); }); });
-    };
-    CortexM.prototype.debugEnable = function () {
-        return this.writeMem(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */);
-    };
-    CortexM.prototype.reset = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var dhcsr;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.writeMem(3758157068 /* NVIC_AIRCR */, 100270080 /* NVIC_AIRCR_VECTKEY */ | 4 /* NVIC_AIRCR_SYSRESETREQ */)
-                        // wait for the system to come out of reset
-                    ];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
-                    case 2:
-                        dhcsr = _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        if (!((dhcsr & 33554432 /* S_RESET_ST */) != 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
-                    case 4:
-                        dhcsr = _a.sent();
-                        return [3 /*break*/, 3];
-                    case 5: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    CortexM.prototype.snapshotMachineState = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var state, i, _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        state = {
-                            stack: [],
-                            registers: []
-                        };
-                        i = 0;
-                        _c.label = 1;
-                    case 1:
-                        if (!(i < 16)) return [3 /*break*/, 4];
-                        _a = state.registers;
-                        _b = i;
-                        return [4 /*yield*/, this.readCoreRegister(i)];
-                    case 2:
-                        _a[_b] = _c.sent();
-                        _c.label = 3;
-                    case 3:
-                        i++;
-                        return [3 /*break*/, 1];
-                    case 4: 
-                    // state.stack = await this.readStack()
-                    return [2 /*return*/, state];
                 }
             });
         });
@@ -910,12 +1111,15 @@ var Breakpoint = (function () {
     }
     Breakpoint.prototype.read = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var n;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.parent.readMem(3758104584 /* FP_COMP0 */ + this.index * 4)
-                        .then(function (n) {
-                        console.log("idx=" + _this.index + ", CURR=" + n + ", LAST=" + _this.lastWritten);
-                    })];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.parent.readMem(3758104584 /* FP_COMP0 */ + this.index * 4)];
+                    case 1:
+                        n = _a.sent();
+                        console.log("idx=" + this.index + ", CURR=" + n + ", LAST=" + this.lastWritten);
+                        return [2 /*return*/];
+                }
             });
         });
     };
@@ -981,20 +1185,25 @@ var Device = (function () {
         this.device = device;
         this.dap = new dap_1.Dap(device);
     }
-    Device.prototype.clearCaches = function () {
-        delete this.dpSelect;
-        delete this.csw;
-        for (var _i = 0, _a = this.breakpoints; _i < _a.length; _i++) {
-            var b = _a[_i];
-            delete b.lastWritten;
-        }
-    };
     Device.prototype.reconnect = function () {
-        var _this = this;
-        this.clearCaches();
-        return this.dap.disconnect()
-            .then(function () { return util_1.delay(100); })
-            .then(function () { return _this.init(); });
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.clearCaches();
+                        return [4 /*yield*/, this.dap.disconnect()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, util_1.delay(100)];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.init()];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     Device.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -1023,12 +1232,15 @@ var Device = (function () {
                         v = _a.sent();
                         _a.label = 7;
                     case 7:
-                        if (!((v & m) != m)) return [3 /*break*/, 9];
+                        if (!((v & m) !== m)) return [3 /*break*/, 9];
                         return [4 /*yield*/, this.readDp(1 /* CTRL_STAT */)];
                     case 8:
                         v = _a.sent();
                         return [3 /*break*/, 7];
-                    case 9: return [4 /*yield*/, this.writeDp(1 /* CTRL_STAT */, 1073741824 /* CSYSPWRUPREQ */ | 268435456 /* CDBGPWRUPREQ */ | 0 /* TRNNORMAL */ | 3840 /* MASKLANE */)];
+                    case 9: return [4 /*yield*/, this.writeDp(1 /* CTRL_STAT */, (1073741824 /* CSYSPWRUPREQ */ |
+                            268435456 /* CDBGPWRUPREQ */ |
+                            0 /* TRNNORMAL */ |
+                            3840 /* MASKLANE */))];
                     case 10:
                         _a.sent();
                         return [4 /*yield*/, this.writeDp(2 /* SELECT */, 0)];
@@ -1045,7 +1257,6 @@ var Device = (function () {
     Device.prototype.writeReg = function (regId, val) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                // console.log(`writeReg(${rid(regId)}, ${hex(val)})`)
                 return [2 /*return*/, this.regOp(regId, val)];
             });
         });
@@ -1059,7 +1270,6 @@ var Device = (function () {
                     case 1:
                         buf = _a.sent();
                         v = util_1.readUInt32LE(buf, 3);
-                        // console.log(`readReg(${rid(regId)}) = ${hex(v)}`)
                         return [2 /*return*/, v];
                 }
             });
@@ -1086,9 +1296,10 @@ var Device = (function () {
         });
     };
     Device.prototype.writeDp = function (addr, data) {
-        if (addr == 2 /* SELECT */) {
-            if (data === this.dpSelect)
+        if (addr === 2 /* SELECT */) {
+            if (data === this.dpSelect) {
                 return Promise.resolve();
+            }
             this.dpSelect = data;
         }
         return this.writeReg(addr, data);
@@ -1100,63 +1311,113 @@ var Device = (function () {
                     case 0: return [4 /*yield*/, this.writeDp(2 /* SELECT */, util_1.bank(addr))];
                     case 1:
                         _a.sent();
-                        if (addr == 0 /* CSW */) {
-                            if (data === this.csw)
+                        if (addr === 0 /* CSW */) {
+                            if (data === this.csw) {
                                 return [2 /*return*/, Promise.resolve()];
+                            }
                             this.csw = data;
                         }
-                        return [2 /*return*/, this.writeReg(util_1.apReg(addr, 0 /* WRITE */), data)];
+                        return [4 /*yield*/, this.writeReg(util_1.apReg(addr, 0 /* WRITE */), data)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/];
                 }
             });
         });
     };
     Device.prototype.close = function () {
-        return this.device.close();
-    };
-    Device.prototype.regOp = function (regId, val) {
-        var request = util_1.regRequest(regId, val !== null);
-        var sendargs = [0, 1, request];
-        if (val !== null)
-            util_1.addInt32(sendargs, val);
-        return this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs)
-            .then(function (buf) {
-            if (buf[1] != 1)
-                throw ("Bad #trans " + buf[1]);
-            if (buf[2] != 1) {
-                if (buf[2] == 2)
-                    throw ("Transfer wait");
-                throw ("Bad transfer status " + buf[2]);
-            }
-            return buf;
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.device.close()];
+            });
         });
     };
     Device.prototype.readRegRepeat = function (regId, cnt) {
-        util_1.assert(cnt <= 15);
-        var request = util_1.regRequest(regId);
-        var sendargs = [0, cnt];
-        for (var i = 0; i < cnt; ++i)
-            sendargs.push(request);
-        return this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs)
-            .then(function (buf) {
-            if (buf[1] != cnt)
-                throw ("(many) Bad #trans " + buf[1]);
-            if (buf[2] != 1)
-                throw ("(many) Bad transfer status " + buf[2]);
-            return buf.slice(3, 3 + cnt * 4);
+        return __awaiter(this, void 0, void 0, function () {
+            var request, sendargs, i, buf;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        util_1.assert(cnt <= 15);
+                        request = util_1.regRequest(regId);
+                        sendargs = [0, cnt];
+                        for (i = 0; i < cnt; ++i) {
+                            sendargs.push(request);
+                        }
+                        return [4 /*yield*/, this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs)];
+                    case 1:
+                        buf = _a.sent();
+                        if (buf[1] !== cnt) {
+                            throw new Error(("(many) Bad #trans " + buf[1]));
+                        }
+                        else if (buf[2] !== 1) {
+                            throw new Error(("(many) Bad transfer status " + buf[2]));
+                        }
+                        return [2 /*return*/, buf.slice(3, 3 + cnt * 4)];
+                }
+            });
         });
     };
     Device.prototype.writeRegRepeat = function (regId, data) {
-        util_1.assert(data.length <= 15);
-        var request = util_1.regRequest(regId, true);
-        var sendargs = [0, data.length];
-        for (var i = 0; i < data.length; ++i) {
-            sendargs.push(request);
-            util_1.addInt32(sendargs, data[i]);
+        return __awaiter(this, void 0, void 0, function () {
+            var request, sendargs, _i, data_1, d, buf;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        util_1.assert(data.length <= 15);
+                        request = util_1.regRequest(regId, true);
+                        sendargs = [0, data.length];
+                        for (_i = 0, data_1 = data; _i < data_1.length; _i++) {
+                            d = data_1[_i];
+                            sendargs.push(request);
+                            util_1.addInt32(sendargs, d);
+                        }
+                        return [4 /*yield*/, this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs)];
+                    case 1:
+                        buf = _a.sent();
+                        if (buf[2] !== 1) {
+                            throw new Error(("(many-wr) Bad transfer status " + buf[2]));
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Device.prototype.clearCaches = function () {
+        delete this.dpSelect;
+        delete this.csw;
+        for (var _i = 0, _a = this.breakpoints; _i < _a.length; _i++) {
+            var b = _a[_i];
+            delete b.lastWritten;
         }
-        return this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs)
-            .then(function (buf) {
-            if (buf[2] != 1)
-                throw ("(many-wr) Bad transfer status " + buf[2]);
+    };
+    Device.prototype.regOp = function (regId, val) {
+        return __awaiter(this, void 0, void 0, function () {
+            var request, sendargs, buf;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        request = util_1.regRequest(regId, val !== null);
+                        sendargs = [0, 1, request];
+                        if (val !== null) {
+                            util_1.addInt32(sendargs, val);
+                        }
+                        return [4 /*yield*/, this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs)];
+                    case 1:
+                        buf = _a.sent();
+                        if (buf[1] !== 1) {
+                            console.error("Make sure you have initialised the DAP connection.");
+                            throw new Error(("Bad #trans " + buf[1]));
+                        }
+                        else if (buf[2] !== 1) {
+                            if (buf[2] === 2) {
+                                throw new Error(("Transfer wait"));
+                            }
+                            throw new Error(("Bad transfer status " + buf[2]));
+                        }
+                        return [2 /*return*/, buf];
+                }
+            });
         });
     };
     return Device;
@@ -1214,10 +1475,96 @@ var Dap = (function () {
         this.maxSent = 1;
         this.hid = hid;
     }
+    Dap.prototype.resetTarget = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.cmdNums(10 /* DAP_RESET_TARGET */, [])];
+            });
+        });
+    };
+    Dap.prototype.disconnect = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.cmdNums(3 /* DAP_DISCONNECT */, [])];
+            });
+        });
+    };
+    Dap.prototype.cmdNums = function (op, data) {
+        return __awaiter(this, void 0, void 0, function () {
+            var buf;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        data.unshift(op);
+                        return [4 /*yield*/, this.send(data)];
+                    case 1:
+                        buf = _a.sent();
+                        if (buf[0] !== op) {
+                            throw new Error("Bad response for " + op + " -> " + buf[0]);
+                        }
+                        switch (op) {
+                            case 2 /* DAP_CONNECT */:
+                            case 0 /* DAP_INFO */:
+                            case 5 /* DAP_TRANSFER */:
+                                break;
+                            default:
+                                if (buf[1] !== 0) {
+                                    throw new Error("Bad status for " + op + " -> " + buf[1]);
+                                }
+                        }
+                        return [2 /*return*/, buf];
+                }
+            });
+        });
+    };
+    Dap.prototype.connect = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var v, buf;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log("Connecting...");
+                        return [4 /*yield*/, this.info(254 /* PACKET_COUNT */)];
+                    case 1:
+                        v = _a.sent();
+                        if (v) {
+                            this.maxSent = v;
+                        }
+                        else {
+                            throw new Error("DAP_INFO returned invalid packet count.");
+                        }
+                        return [4 /*yield*/, this.cmdNums(17 /* DAP_SWJ_CLOCK */, util_1.addInt32(null, 1000000))];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.cmdNums(2 /* DAP_CONNECT */, [0])];
+                    case 3:
+                        buf = _a.sent();
+                        if (buf[1] !== 1) {
+                            throw new Error("SWD mode not enabled.");
+                        }
+                        return [4 /*yield*/, this.cmdNums(17 /* DAP_SWJ_CLOCK */, util_1.addInt32(null, 1000000))];
+                    case 4:
+                        _a.sent();
+                        return [4 /*yield*/, this.cmdNums(4 /* DAP_TRANSFER_CONFIGURE */, [0, 0x50, 0, 0, 0])];
+                    case 5:
+                        _a.sent();
+                        return [4 /*yield*/, this.cmdNums(19 /* DAP_SWD_CONFIGURE */, [0])];
+                    case 6:
+                        _a.sent();
+                        return [4 /*yield*/, this.jtagToSwd()];
+                    case 7:
+                        _a.sent();
+                        console.log("Connected");
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     Dap.prototype.sendNums = function (lst) {
         lst.unshift(0);
-        while (lst.length < 64)
+        while (lst.length < 64) {
             lst.push(0);
+        }
         this.send(lst);
     };
     Dap.prototype.jtagToSwd = function () {
@@ -1230,7 +1577,7 @@ var Dap = (function () {
                             [56, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
                             [16, 0x9e, 0xe7],
                             [56, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
-                            [8, 0x00]
+                            [8, 0x00],
                         ];
                         _i = 0, arrs_1 = arrs;
                         _a.label = 1;
@@ -1250,91 +1597,54 @@ var Dap = (function () {
         });
     };
     Dap.prototype.swjSequence = function (data) {
-        return this.cmdNums(18 /* DAP_SWJ_SEQUENCE */, data);
-    };
-    Dap.prototype.send = function (command) {
-        var _this = this;
-        var array = Uint8Array.from(command);
-        return this.hid.write(array.buffer)
-            .then(function (response) { return _this.hid.read(); })
-            .then(function (response) {
-            return new Uint8Array(response.buffer);
-        });
-    };
-    Dap.prototype.cmdNums = function (op, data) {
-        // console.log(op);
-        data.unshift(op);
-        return this.send(data)
-            .then(function (buf) {
-            // console.log(buf);
-            if (buf[0] != op)
-                throw "Bad response for " + op + " -> " + buf[0];
-            switch (op) {
-                case 2 /* DAP_CONNECT */:
-                case 0 /* DAP_INFO */:
-                case 5 /* DAP_TRANSFER */:
-                    break;
-                default:
-                    if (buf[1] != 0)
-                        throw "Bad status for " + op + " -> " + buf[1];
-            }
-            return buf;
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.cmdNums(18 /* DAP_SWJ_SEQUENCE */, data)];
+            });
         });
     };
     Dap.prototype.info = function (id) {
-        return this.cmdNums(0 /* DAP_INFO */, [id])
-            .then(function (buf) {
-            if (buf[1] == 0)
-                return null;
-            switch (id) {
-                case 240 /* CAPABILITIES */:
-                case 254 /* PACKET_COUNT */:
-                case 255 /* PACKET_SIZE */:
-                    if (buf[1] == 1)
-                        return buf[2];
-                    if (buf[1] == 2)
-                        return buf[3] << 8 | buf[2];
-            }
-            return buf.slice(2, buf[1] + 2 - 1); // .toString("utf8")
-        });
-    };
-    Dap.prototype.resetTarget = function () {
         return __awaiter(this, void 0, void 0, function () {
+            var buf;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.cmdNums(10 /* DAP_RESET_TARGET */, [])];
-            });
-        });
-    };
-    Dap.prototype.disconnect = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.cmdNums(3 /* DAP_DISCONNECT */, [])];
-            });
-        });
-    };
-    Dap.prototype.connect = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                console.log("Connecting...");
-                return [2 /*return*/, this.info(254 /* PACKET_COUNT */)
-                        .then(function (v) {
-                        _this.maxSent = v;
-                    })
-                        .then(function () { return _this.cmdNums(17 /* DAP_SWJ_CLOCK */, util_1.addInt32(null, 1000000)); })
-                        .then(function () { return _this.cmdNums(2 /* DAP_CONNECT */, [0]); })
-                        .then(function (buf) {
-                        if (buf[1] != 1) {
-                            // not SWD :'(
-                            console.log(buf);
-                            console.error('SWD mode not enabled.');
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.cmdNums(0 /* DAP_INFO */, [id])];
+                    case 1:
+                        buf = _a.sent();
+                        if (buf[1] === 0) {
+                            return [2 /*return*/, null];
                         }
-                        return _this.cmdNums(17 /* DAP_SWJ_CLOCK */, util_1.addInt32(null, 1000000));
-                    })
-                        .then(function () { return _this.cmdNums(4 /* DAP_TRANSFER_CONFIGURE */, [0, 0x50, 0, 0, 0]); })
-                        .then(function () { return _this.cmdNums(19 /* DAP_SWD_CONFIGURE */, [0]); })
-                        .then(function () { return _this.jtagToSwd(); })
-                        .then(function () { return console.log("Connected."); })];
+                        switch (id) {
+                            case 240 /* CAPABILITIES */:
+                            case 254 /* PACKET_COUNT */:
+                            case 255 /* PACKET_SIZE */:
+                                if (buf[1] === 1) {
+                                    return [2 /*return*/, buf[2]];
+                                }
+                                else if (buf[1] === 2) {
+                                    return [2 /*return*/, buf[3] << 8 | buf[2]];
+                                }
+                        }
+                        return [2 /*return*/, buf.slice(2, buf[1] + 2 - 1)]; // .toString("utf8")
+                }
+            });
+        });
+    };
+    Dap.prototype.send = function (command) {
+        return __awaiter(this, void 0, void 0, function () {
+            var array, response;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        array = Uint8Array.from(command);
+                        return [4 /*yield*/, this.hid.write(array.buffer)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.hid.read()];
+                    case 2:
+                        response = _a.sent();
+                        return [2 /*return*/, new Uint8Array(response.buffer)];
+                }
             });
         });
     };
@@ -1511,22 +1821,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var dapjs_1 = __webpack_require__(1);
-var FlashAlgo = (function () {
-    function FlashAlgo() {
-    }
-    return FlashAlgo;
-}());
+/**
+ * Flashing parameters for the NXP K64F. Found here:
+ * https://github.com/mbedmicro/pyOCD/blob/master/pyOCD/target/target_MK64FN1M0xxx12.py
+ */
 var K64FFlashAlgo = {
-    load_address: 0x20000000,
-    pc_init: 0x20000021,
-    pc_eraseAll: 0x20000059,
-    pc_eraseSector: 0x2000007d,
-    pc_programPage: 0x200000ab,
-    beginStack: 0x20001000,
     beginData: 0x20003000,
-    pageBuffers: [0x20003000, 0x20004000],
-    staticBase: 0x20000000 + 0x20 + 0x474,
-    minProgramLength: 8,
+    beginStack: 0x20001000,
     code: [
         0xE00ABE00, 0x062D780D, 0x24084068, 0xD3000040, 0x1E644058, 0x1C49D1FA, 0x2A001E52, 0x4770D1F2,
         0x4604b570, 0x4616460d, 0x5020f24c, 0x81c84932, 0x1028f64d, 0x460881c8, 0xf0208800, 0x80080001,
@@ -1565,7 +1866,15 @@ var K64FFlashAlgo = {
         0xd0010f00, 0x4000f8c8, 0x0f00f1ba, 0x2000d002, 0x0000f8ca, 0x1f3fe004, 0x1d241d2d, 0xd1da2f00,
         0x4630bf00, 0x0000e7c9, 0x00000074, 0x40020000, 0x00000000, 0x00080000, 0x00100000, 0x00200000,
         0x00400000, 0x00800000, 0x01000000, 0x01000000, 0x40020004, 0x00000000,
-    ]
+    ],
+    load_address: 0x20000000,
+    minProgramLength: 8,
+    pageBuffers: [0x20003000, 0x20004000],
+    pcEraseAll: 0x20000059,
+    pcEraseSector: 0x2000007d,
+    pcInit: 0x20000021,
+    pcProgramPage: 0x200000ab,
+    staticBase: 0x20000000 + 0x20 + 0x474,
 };
 var K64F = (function (_super) {
     __extends(K64F, _super);
@@ -1574,6 +1883,12 @@ var K64F = (function (_super) {
         _this.flashAlgo = K64FFlashAlgo;
         return _this;
     }
+    /**
+     * Initialise the flash driver on the chip. Must be called before any of the other
+     * flash-related methods.
+     *
+     * **TODO**: check that this has been called before calling other flash methods.
+     */
     K64F.prototype.flashInit = function () {
         return __awaiter(this, void 0, void 0, function () {
             var result;
@@ -1582,50 +1897,115 @@ var K64F = (function (_super) {
                     case 0: return [4 /*yield*/, this.halt()];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.flashAlgo.staticBase)];
+                        // setTargetState("program")
+                        return [4 /*yield*/, this.resetStopOnReset()];
                     case 2:
+                        // setTargetState("program")
                         _a.sent();
-                        return [4 /*yield*/, this.run_code(this.flashAlgo.code, this.flashAlgo.load_address, this.flashAlgo.pc_init, this.flashAlgo.beginStack, this.flashAlgo.load_address - 1)];
+                        return [4 /*yield*/, this.writeCoreRegister(16 /* XPSR */, 0x1000000)];
                     case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.flashAlgo.staticBase)];
+                    case 4:
+                        _a.sent();
+                        return [4 /*yield*/, this.runCode(this.flashAlgo.code, this.flashAlgo.load_address, this.flashAlgo.pcInit, this.flashAlgo.beginStack, this.flashAlgo.load_address - 1)];
+                    case 5:
                         result = _a.sent();
-                        if (result != 0) {
-                            throw "Invalid result code running flash init.";
+                        if (result !== 0) {
+                            throw new Error("Invalid result code running flash init.");
                         }
                         return [2 /*return*/];
                 }
             });
         });
     };
-    K64F.prototype.flash = function (code) {
+    /**
+     * Upload a binary blob to (non-volatile) flash memory, at the specified address. Uses the
+     * flashing algorithm relevant to the particular part - if you just want to upload to RAM,
+     * use `this.writeBlock`.
+     *
+     * @param code an array of 32-bit words representing the binary data to be uploaded.
+     * @param address starting address of the location in memory to upload to.
+     */
+    K64F.prototype.flash = function (code, address) {
+        if (address === void 0) { address = 0x0; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
+                throw new Error("Not implemented.");
+            });
+        });
+    };
+    /**
+     * Erase _all_ data stored in flash on the chip.
+     */
+    K64F.prototype.eraseChip = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, finalPC;
+            return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.halt()];
+                    case 0: return [4 /*yield*/, this.runCode(this.flashAlgo.code, this.flashAlgo.load_address, this.flashAlgo.pcEraseAll, this.flashAlgo.load_address - 1)];
                     case 1:
+                        result = _a.sent();
+                        return [4 /*yield*/, this.readCoreRegister(15 /* PC */)];
+                    case 2:
+                        finalPC = _a.sent();
+                        console.log(result, finalPC.toString(16));
+                        return [2 /*return*/, result];
+                }
+            });
+        });
+    };
+    K64F.prototype.resetStopOnReset = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var demcr;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log("reset stop on Reset");
+                        return [4 /*yield*/, this.halt()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.readMem(3758157308 /* DEMCR */)];
+                    case 2:
+                        demcr = _a.sent();
+                        return [4 /*yield*/, this.writeMem(3758157308 /* DEMCR */, demcr | 1 /* DEMCR_VC_CORERESET */)];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.reset()];
+                    case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5: return [4 /*yield*/, this.isHalted()];
+                    case 6:
+                        if (!!(_a.sent())) return [3 /*break*/, 7];
+                        return [3 /*break*/, 5];
+                    case 7: return [4 /*yield*/, this.writeMem(3758157308 /* DEMCR */, demcr)];
+                    case 8:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         });
     };
-    K64F.prototype.eraseChip = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var result, final_pc;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.run_code(this.flashAlgo.code, this.flashAlgo.load_address, this.flashAlgo.pc_eraseAll, this.flashAlgo.beginStack, this.flashAlgo.load_address - 1)];
-                    case 1:
-                        result = _a.sent();
-                        return [4 /*yield*/, this.readCoreRegister(15 /* PC */)];
-                    case 2:
-                        final_pc = _a.sent();
-                        console.log(result, final_pc.toString(16));
-                        return [2 /*return*/, result];
-                }
-            });
-        });
-    };
-    K64F.prototype.run_code = function (code, address, pc, sp, lr) {
+    /**
+     * Run specified machine code natively on the device. Assumes usual C calling conventions
+     * - returns the value of r0 once the program has terminated. The program _must_ terminate
+     * in order for this function to return. This can be achieved by placing a `bkpt`
+     * instruction at the end of the function.
+     *
+     * **FIXME**: currently causes a hard fault when the core is resumed after successfully uploading
+     * the blob to memory and setting core registers.
+     *
+     * @param code array containing the machine code (32-bit words).
+     * @param address memory address at which to place the code.
+     * @param pc initial value of the program counter.
+     * @param sp initial value of the stack pointer.
+     * @param lr initial value of the link register.
+     *
+     * @returns A promise for the value of r0 on completion of the function call.
+     */
+    K64F.prototype.runCode = function (code, address, pc, lr, sp) {
+        if (sp === void 0) { sp = null; }
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -1648,16 +2028,24 @@ var K64F = (function (_super) {
                         return [4 /*yield*/, this.writeCoreRegister(14 /* LR */, lr)];
                     case 4:
                         _a.sent();
+                        if (!sp) return [3 /*break*/, 6];
                         return [4 /*yield*/, this.writeCoreRegister(13 /* SP */, sp)];
                     case 5:
                         _a.sent();
                         _a.label = 6;
-                    case 6: return [4 /*yield*/, this.getState()];
+                    case 6: 
+                    // resume core
+                    return [4 /*yield*/, this.resume()];
                     case 7:
-                        if (!((_a.sent()) == 4 /* TARGET_RUNNING */)) return [3 /*break*/, 8];
-                        return [3 /*break*/, 6];
-                    case 8: return [4 /*yield*/, this.readCoreRegister(0 /* R0 */)];
-                    case 9: return [2 /*return*/, _a.sent()];
+                        // resume core
+                        _a.sent();
+                        _a.label = 8;
+                    case 8: return [4 /*yield*/, this.getState()];
+                    case 9:
+                        if (!((_a.sent()) === 4 /* TARGET_RUNNING */)) return [3 /*break*/, 10];
+                        return [3 /*break*/, 8];
+                    case 10: return [4 /*yield*/, this.readCoreRegister(0 /* R0 */)];
+                    case 11: return [2 /*return*/, _a.sent()];
                 }
             });
         });
