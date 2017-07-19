@@ -1,5 +1,12 @@
 import {CoreState, CortexM, CortexReg, CortexSpecialReg, Device} from "dapjs";
 
+/**
+ * Specifies all of the parameters associated with a flashing algorithm for a particular device. These
+ * can be found in the pyOCD or DAPLink sources, or compiled from the source that can be found here:
+ * https://github.com/mbedmicro/FlashAlgo.
+ *
+ * TODO: add JavaScript as a third target for FlashAlgo's output.
+ */
 interface IFlashAlgo {
     load_address: number;
     pcInit: number;
@@ -14,6 +21,10 @@ interface IFlashAlgo {
     code: number[];
 }
 
+/**
+ * Flashing parameters for the NXP K64F. Found here:
+ * https://github.com/mbedmicro/pyOCD/blob/master/pyOCD/target/target_MK64FN1M0xxx12.py
+ */
 const K64FFlashAlgo = {
     beginData : 0x20003000,
     beginStack : 0x20001000,
@@ -75,6 +86,12 @@ export class K64F extends CortexM {
         this.flashAlgo = K64FFlashAlgo;
     }
 
+    /**
+     * Initialise the flash driver on the chip. Must be called before any of the other
+     * flash-related methods.
+     *
+     * TODO: check that this has been called before calling other flash methods.
+     */
     public async flashInit() {
         await this.halt();
         await this.writeCoreRegister(CortexReg.R9, this.flashAlgo.staticBase);
@@ -92,11 +109,21 @@ export class K64F extends CortexM {
         }
     }
 
-    public async flash(code: number[]) {
-        await this.halt();
-
+    /**
+     * Upload a binary blob to (non-volatile) flash memory, at the specified address. Uses the
+     * flashing algorithm relevant to the particular part - if you just want to upload to RAM,
+     * use this.writeBlock.
+     *
+     * @param code an array of 32-bit words representing the binary data to be uploaded.
+     * @param address starting address of the location in memory to upload to.
+     */
+    public async flash(code: number[], address = 0x0) {
+        throw new Error("Not implemented.");
     }
 
+    /**
+     * Erase ALL data stored in flash on the chip.
+     */
     public async eraseChip() {
         const result = await this.runCode(
             this.flashAlgo.code,
@@ -111,6 +138,23 @@ export class K64F extends CortexM {
         return result;
     }
 
+    /**
+     * Run specified machine code natively on the device. Assumes usual C calling conventions
+     * - returns the value of r0 once the program has terminated. The program _must_ terminate
+     * in order for this function to return. This can be achieved by placing a `bkpt`
+     * instruction at the end of the function.
+     *
+     * FIXME: currently causes a hard fault when the core is resumed after successfully uploading
+     * the blob to memory and setting core registers.
+     *
+     * @param code array containing the machine code (32-bit words).
+     * @param address memory address at which to place the code.
+     * @param pc initial value of the program counter.
+     * @param sp initial value of the stack pointer.
+     * @param lr initial value of the link register.
+     *
+     * @returns A promise for the value of r0 on completion of the function call.
+     */
     private async runCode(code: number[], address: number,  pc: number, sp: number, lr: number) {
         // upload flashing algorithm to flashAlgo.load_address
         await this.halt();
