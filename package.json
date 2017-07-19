@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "build-watch": "webpack --watch"
+    "build-watch": "webpack --watch",
+    "lint": "tslint -c tslint.json -p tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
     "@types/jquery": "^3.2.8",
     "ts-loader": "^2.3.0",
     "tslint": "^5.5.0",
+    "typedoc": "^0.7.1",
     "typescript": "^2.4.1",
     "webpack": "^3.3.0"
   }
