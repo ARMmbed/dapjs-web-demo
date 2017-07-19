@@ -1,0 +1,40 @@
+{
+  "name": "dapjs-web-demo",
+  "version": "1.0.0",
+  "description": "Demo using DAPjs with WebUSB",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "build-watch": "webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matthewelse/dapjs-web-demo.git"
+  },
+  "keywords": [
+    "dap",
+    "debugging",
+    "js",
+    "embedded",
+    "webusb"
+  ],
+  "author": "Matthew Else <matthewelse1997@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/matthewelse/dapjs-web-demo/issues"
+  },
+  "homepage": "https://github.com/matthewelse/dapjs-web-demo#readme",
+  "dependencies": {
+    "binary-parser": "^1.1.5",
+    "dapjs": "github:matthewelse/dapjs",
+    "webhid": "github:matthewelse/webhid"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.2.8",
+    "ts-loader": "^2.3.0",
+    "tslint": "^5.5.0",
+    "typescript": "^2.4.1",
+    "webpack": "^3.3.0"
+  }
+}
