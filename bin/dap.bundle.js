@@ -205,12 +205,15 @@ exports.hexBytes = function (bytes) {
 var arrToString = function (arr) {
     var r = "";
     for (var i = 0; i < arr.length; ++i) {
-        r += ("0000" + i).slice(-4) + ": " + ("00000000" + (arr[i] >>> 0).toString(16)).slice(-8) + "\n";
+        r += ("0000" + i).slice(-4) + ": " + ("00000000" + (arr[i] >>> 0).toString(16)).slice(-8);
+        if (i != arr.length - 1) {
+            r += "\n";
+        }
     }
     return r;
 };
 exports.machineStateToString = function (s) {
-    return "REGS:\n" + arrToString(s.registers) + "\n\nSTACK:\n" + arrToString(s.stack);
+    return "REGS:\n" + arrToString(s.registers);
 };
 //# sourceMappingURL=util.js.map
 
@@ -223,6 +226,8 @@ exports.machineStateToString = function (s) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var cortex_m_1 = __webpack_require__(3);
 exports.CortexM = cortex_m_1.CortexM;
+exports.CoreNames = cortex_m_1.CoreNames;
+exports.ISANames = cortex_m_1.ISANames;
 var device_1 = __webpack_require__(5);
 exports.Device = device_1.Device;
 var util_1 = __webpack_require__(0);
@@ -275,85 +280,157 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var dapjs_1 = __webpack_require__(1);
 var webhid_1 = __webpack_require__(7);
 var targets_1 = __webpack_require__(8);
-var logMachineState = function (lbl) {
-    return function (s) {
-        console.log(dapjs_1.machineStateToString(s).replace(/^/gm, lbl + ": "));
-        return s;
-    };
-};
 $(function () {
     var hid;
     var dev;
     var cm;
+    if (!navigator.usb) {
+        $("#noWebUSB").show();
+        return;
+    }
+    var log = function (str) {
+        $("#trace").append(str + "\n");
+    };
+    var logClear = function () {
+        $("#trace").html("");
+    };
     $("#click").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        var device;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, navigator.usb.requestDevice({ filters: [{ vendorId: 0x0d28 }] })];
+        var device, _a, imp, isa, type, e_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    $("#platform").attr("disabled", 1);
+                    $("#click").attr("disabled", 1);
+                    $("#click").html("Connecting");
+                    return [4 /*yield*/, navigator.usb.requestDevice({ filters: [{ vendorId: 0x0d28 }] })];
                 case 1:
-                    device = _a.sent();
+                    device = _b.sent();
                     hid = new webhid_1.default(device);
                     return [4 /*yield*/, hid.open()];
                 case 2:
-                    _a.sent();
-                    $("#connect").prop("disabled", false);
+                    _b.sent();
+                    _b.label = 3;
+                case 3:
+                    _b.trys.push([3, 8, , 10]);
+                    dev = new dapjs_1.Device(hid);
+                    cm = new targets_1.K64F(dev);
+                    return [4 /*yield*/, cm.init()];
+                case 4:
+                    _b.sent();
+                    return [4 /*yield*/, cm.halt()];
+                case 5:
+                    _b.sent();
+                    $("#click").html("Connected");
+                    log("Connected.");
+                    return [4 /*yield*/, cm.readCoreType()];
+                case 6:
+                    _a = _b.sent(), imp = _a[0], isa = _a[1], type = _a[2];
+                    log("Found an ARM " + dapjs_1.CoreNames.get(type) + " (" + dapjs_1.ISANames.get(isa) + ")");
+                    return [4 /*yield*/, cm.resume()];
+                case 7:
+                    _b.sent();
+                    return [3 /*break*/, 10];
+                case 8:
+                    e_1 = _b.sent();
+                    console.error(e_1);
+                    return [4 /*yield*/, dev.close()];
+                case 9:
+                    _b.sent();
+                    return [3 /*break*/, 10];
+                case 10:
+                    $(".when-connected").attr("disabled", null);
                     return [2 /*return*/];
             }
         });
     }); });
-    $("#connect").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        var st, e_1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    _a.trys.push([0, 5, , 7]);
-                    dev = new dapjs_1.Device(hid);
-                    cm = new targets_1.K64F(dev);
-                    return [4 /*yield*/, cm.init()];
-                case 1:
-                    _a.sent();
-                    return [4 /*yield*/, cm.halt()];
-                case 2:
-                    _a.sent();
-                    console.log('Snapshotting');
-                    return [4 /*yield*/, cm.snapshotMachineState()];
-                case 3:
-                    st = _a.sent();
-                    logMachineState("init")(st);
-                    console.log("Resuming core.");
-                    return [4 /*yield*/, cm.resume()];
-                case 4:
-                    _a.sent();
-                    return [3 /*break*/, 7];
-                case 5:
-                    e_1 = _a.sent();
-                    console.error(e_1);
-                    return [4 /*yield*/, dev.close()];
-                case 6:
-                    _a.sent();
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
-            }
-        });
-    }); });
     $("#flash").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        var r0;
+        var program, r0;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     // flash the microcontroller we have connected.
-                    console.log("Flashing mcu :)");
-                    console.log("Initing flash");
+                    logClear();
+                    log("Preparing to Flash MCU.");
+                    program = [0x2034F241, 0xbe00];
+                    return [4 /*yield*/, cm.runCode(program, 0x20000020, 0x20000021, 0x0, 0x0)];
+                case 1:
+                    r0 = _a.sent();
+                    log("Got r0=0x" + r0.toString(16));
+                    log("Done.");
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    $("#flash-erase").click(function () { return __awaiter(_this, void 0, void 0, function () {
+        var r0;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    // Erase flash
+                    logClear();
+                    log("Running flashInit");
                     return [4 /*yield*/, cm.flashInit()];
                 case 1:
                     r0 = _a.sent();
-                    console.log("erasing");
-                    return [4 /*yield*/, cm.eraseChip()];
+                    log("flashInit returned 0x" + r0.toString(16));
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    $("#halt").click(function () { return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, cm.halt()];
+                case 1:
+                    _a.sent();
+                    log("Halted.");
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    $("#resume").click(function () { return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, cm.resume()];
+                case 1:
+                    _a.sent();
+                    log("Resumed.");
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    $("#registers").click(function () { return __awaiter(_this, void 0, void 0, function () {
+        var halt, st;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    halt = false;
+                    return [4 /*yield*/, cm.halt()];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, cm.snapshotMachineState()];
                 case 2:
+                    st = _a.sent();
+                    // await cm.resume();
+                    logClear();
+                    log(dapjs_1.machineStateToString(st));
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    $("#step-instruction").click(function () { return __awaiter(_this, void 0, void 0, function () {
+        var st;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, cm.step()];
+                case 1:
                     _a.sent();
-                    return [4 /*yield*/, dev.close()];
-                case 3:
-                    _a.sent();
+                    return [4 /*yield*/, cm.snapshotMachineState()];
+                case 2:
+                    st = _a.sent();
+                    // await cm.resume();
+                    logClear();
+                    log(dapjs_1.machineStateToString(st));
                     return [2 /*return*/];
             }
         });
@@ -415,6 +492,9 @@ exports.CPUID_PARTNO_MASK = 0x0000fff0;
 exports.CPUID_PARTNO_POS = 4;
 exports.CPUID_REVISION_MASK = 0x0000000f;
 exports.CPUID_REVISION_POS = 0;
+exports.ISANames = new Map();
+exports.ISANames.set(12 /* ARMv6M */, "ARMv6M");
+exports.ISANames.set(15 /* ARMv7M */, "ARMv7M");
 exports.CoreNames = new Map();
 exports.CoreNames.set(3104 /* CortexM0 */, "Cortex-M0");
 exports.CoreNames.set(3105 /* CortexM1 */, "Cortex-M1");
@@ -446,7 +526,7 @@ var CortexM = (function () {
                         return [4 /*yield*/, this.readCoreType()];
                     case 3:
                         _a.sent();
-                        console.log("Initialized.");
+                        console.debug("Initialized.");
                         return [2 /*return*/];
                 }
             });
@@ -506,7 +586,7 @@ var CortexM = (function () {
                         implementer = ((cpuid & exports.CPUID_IMPLEMENTER_MASK) >> exports.CPUID_IMPLEMENTER_POS);
                         arch = ((cpuid & exports.CPUID_ARCHITECTURE_MASK) >> exports.CPUID_ARCHITECTURE_POS);
                         coreType = ((cpuid & exports.CPUID_PARTNO_MASK) >> exports.CPUID_PARTNO_POS);
-                        console.log("Found an ARM " + exports.CoreNames.get(coreType));
+                        console.debug("Found an ARM " + exports.CoreNames.get(coreType));
                         return [2 /*return*/, [implementer, arch, coreType]];
                 }
             });
@@ -528,7 +608,7 @@ var CortexM = (function () {
                         fpcr = _a.sent();
                         nbCode = ((fpcr >> 8) & 0x70) | ((fpcr >> 4) & 0xf);
                         nbLit = (fpcr >> 7) & 0xf;
-                        console.log(nbCode + " hardware breakpoints, " + nbLit + " literal comparators");
+                        console.debug(nbCode + " hardware breakpoints, " + nbLit + " literal comparators");
                         this.breakpoints = [];
                         i = 0;
                         _a.label = 2;
@@ -755,12 +835,12 @@ var CortexM = (function () {
                         if (words.length === 0) {
                             return [2 /*return*/];
                         }
-                        console.log("write block: 0x" + addr.toString(16) + " " + words.length + " len");
+                        console.debug("write block: 0x" + addr.toString(16) + " " + words.length + " len");
                         if (!(1 > 0)) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.writeBlockCore(addr, words)];
                     case 1:
                         _a.sent();
-                        console.log("written");
+                        console.debug("written");
                         return [2 /*return*/];
                     case 2:
                         blSz = 10;
@@ -776,7 +856,7 @@ var CortexM = (function () {
                         i++;
                         return [3 /*break*/, 3];
                     case 6:
-                        console.log("written");
+                        console.debug("written");
                         return [2 /*return*/];
                 }
             });
@@ -850,13 +930,15 @@ var CortexM = (function () {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.isHalted()];
                     case 1:
-                        if (!_a.sent()) return [3 /*break*/, 3];
+                        if (!_a.sent()) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.writeMem(3758157104 /* DFSR */, 4 /* DFSR_DWTTRAP */ | 2 /* DFSR_BKPT */ | 1 /* DFSR_HALTED */)];
                     case 2:
                         _a.sent();
-                        this.debugEnable();
-                        _a.label = 3;
-                    case 3: return [2 /*return*/];
+                        return [4 /*yield*/, this.debugEnable()];
+                    case 3:
+                        _a.sent();
+                        _a.label = 4;
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -980,6 +1062,95 @@ var CortexM = (function () {
             });
         });
     };
+    /**
+     * Run specified machine code natively on the device. Assumes usual C calling conventions
+     * - returns the value of r0 once the program has terminated. The program _must_ terminate
+     * in order for this function to return. This can be achieved by placing a `bkpt`
+     * instruction at the end of the function.
+     *
+     * **FIXME**: currently causes a hard fault when the core is resumed after successfully uploading
+     * the blob to memory and setting core registers.
+     *
+     * @param code array containing the machine code (32-bit words).
+     * @param address memory address at which to place the code.
+     * @param pc initial value of the program counter.
+     * @param sp initial value of the stack pointer.
+     * @param lr initial value of the link register.
+     *
+     * @returns A promise for the value of r0 on completion of the function call.
+     */
+    CortexM.prototype.runCode = function (code, address, pc, lr, sp) {
+        if (sp === void 0) { sp = null; }
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: 
+                    // Halt the core
+                    return [4 /*yield*/, this.halt()];
+                    case 1:
+                        // Halt the core
+                        _a.sent();
+                        // Point the program counter to the start of the program
+                        return [4 /*yield*/, this.writeCoreRegister(15 /* PC */, pc)];
+                    case 2:
+                        // Point the program counter to the start of the program
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(14 /* LR */, lr)];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(13 /* SP */, sp)];
+                    case 4:
+                        _a.sent();
+                        // Write the program to memory at the specified address
+                        return [4 /*yield*/, this.writeBlock(address, code)];
+                    case 5:
+                        // Write the program to memory at the specified address
+                        _a.sent();
+                        return [4 /*yield*/, this.readCoreRegister(0 /* R0 */)];
+                    case 6: 
+                    // Run the program
+                    // await this.resume();
+                    return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    /**
+     * Step the processor forward by one instruction.
+     */
+    CortexM.prototype.step = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var dhcsr, interrupts_masked;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
+                    case 1:
+                        dhcsr = _a.sent();
+                        if (!(dhcsr & (4 /* C_STEP */ | 2 /* C_HALT */))) {
+                            console.error("Target is not halted.");
+                            return [2 /*return*/];
+                        }
+                        interrupts_masked = (8 /* C_MASKINTS */ & dhcsr) !== 0;
+                        if (!!interrupts_masked) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.writeMem(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */ | 2 /* C_HALT */ | 8 /* C_MASKINTS */)];
+                    case 2:
+                        _a.sent();
+                        _a.label = 3;
+                    case 3: return [4 /*yield*/, this.writeMem(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */ | 8 /* C_MASKINTS */ | 4 /* C_STEP */)];
+                    case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5: return [4 /*yield*/, this.readMem(3758157296 /* DHCSR */)];
+                    case 6:
+                        if (!!((_a.sent()) & 2 /* C_HALT */)) return [3 /*break*/, 7];
+                        return [3 /*break*/, 5];
+                    case 7:
+                        this.writeMem(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */ | 2 /* C_HALT */);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     CortexM.prototype.readBlockCore = function (addr, words) {
         return __awaiter(this, void 0, void 0, function () {
             var lastSize, bufs, blocks, i, b;
@@ -1044,7 +1215,7 @@ var CortexM = (function () {
                     case 7:
                         e_2 = _a.sent();
                         if (!e_2.dapWait) return [3 /*break*/, 10];
-                        console.log("transfer wait, write block");
+                        console.debug("transfer wait, write block");
                         return [4 /*yield*/, util_1.delay(100)];
                     case 8:
                         _a.sent();
@@ -1821,66 +1992,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var dapjs_1 = __webpack_require__(1);
-/**
- * Flashing parameters for the NXP K64F. Found here:
- * https://github.com/mbedmicro/pyOCD/blob/master/pyOCD/target/target_MK64FN1M0xxx12.py
- */
-var K64FFlashAlgo = {
-    beginData: 0x20003000,
-    beginStack: 0x20001000,
-    code: [
-        0xE00ABE00, 0x062D780D, 0x24084068, 0xD3000040, 0x1E644058, 0x1C49D1FA, 0x2A001E52, 0x4770D1F2,
-        0x4604b570, 0x4616460d, 0x5020f24c, 0x81c84932, 0x1028f64d, 0x460881c8, 0xf0208800, 0x80080001,
-        0x4448482e, 0xf8dcf000, 0x2001b108, 0x2000bd70, 0x4601e7fc, 0x47702000, 0x4929b510, 0x44484827,
-        0xf8b8f000, 0xb92c4604, 0x48242100, 0xf0004448, 0x4604f9a9, 0xf837f000, 0xbd104620, 0x4604b570,
-        0x4448481e, 0x46214b1e, 0xf00068c2, 0x4605f85d, 0x481ab93d, 0x23004448, 0x68c24621, 0xf946f000,
-        0xf0004605, 0x4628f820, 0xb5febd70, 0x460c4605, 0x46234616, 0x46294632, 0x44484810, 0xf8f8f000,
-        0xb9674607, 0x22012000, 0x2000e9cd, 0x46224633, 0x90024629, 0x44484809, 0xf984f000, 0xf0004607,
-        0x4638f802, 0x4807bdfe, 0xf4206840, 0xf5000070, 0x49040070, 0x47706048, 0x40052000, 0x00000004,
-        0x6b65666b, 0x4001f000, 0x4a0e2070, 0x20807010, 0xbf007010, 0x7800480b, 0x280009c0, 0x4809d0fa,
-        0xf0017801, 0xb1080020, 0x47702067, 0x0010f001, 0x2068b108, 0xf001e7f9, 0xb1080001, 0xe7f42069,
-        0xe7f22000, 0x40020000, 0x4df0e92d, 0x460d4604, 0x469a4690, 0xf0004650, 0x4606f891, 0x4630b116,
-        0x8df0e8bd, 0x46422310, 0x46204629, 0xf86cf000, 0xb10e4606, 0xe7f34630, 0x0008eb05, 0x68e01e47,
-        0xf1f0fbb7, 0x7011fb00, 0x68e0b140, 0xf0f0fbb7, 0x0b01f100, 0xfb0068e0, 0x1e47f00b, 0x480be011,
-        0x68004478, 0x20096005, 0x71c84909, 0xffacf7ff, 0x69a04606, 0x69a0b108, 0xb1064780, 0x68e0e003,
-        0x42bd4405, 0xbf00d9eb, 0xe7c94630, 0x000002ec, 0x40020000, 0x4604b570, 0x4628460d, 0xf84ef000,
-        0xb10e4606, 0xbd704630, 0x2004b90c, 0x2044e7fb, 0x71c84902, 0xff88f7ff, 0x0000e7f5, 0x40020000,
-        0xb9094601, 0x47702004, 0x6cc04826, 0x6003f3c0, 0x447b4b25, 0x0010f833, 0xb90a0302, 0xe7f22064,
-        0x60082000, 0x2002604a, 0x02c06088, 0x200060c8, 0x61486108, 0xbf006188, 0x4602e7e5, 0x2004b90a,
-        0x61914770, 0xe7fb2000, 0x4604b530, 0x2004b90c, 0x1e58bd30, 0xb9104008, 0x40101e58, 0x2065b108,
-        0x6820e7f6, 0xd8054288, 0x0500e9d4, 0x188d4428, 0xd20142a8, 0xe7eb2066, 0xe7e92000, 0x480b4601,
-        0xd0014281, 0x4770206b, 0xe7fc2000, 0xb90b4603, 0x47702004, 0xd801290f, 0xd0012a04, 0xe7f82004,
-        0xe7f62000, 0x40048000, 0x0000025a, 0x6b65666b, 0x41f0e92d, 0x46884607, 0x461d4614, 0x2004b914,
-        0x81f0e8bd, 0x462a2308, 0x46384641, 0xffbcf7ff, 0xb10e4606, 0xe7f34630, 0x4812e01f, 0x68004478,
-        0x8000f8c0, 0x490fcc01, 0x390c4479, 0x60486809, 0x490ccc01, 0x39184479, 0x60886809, 0x490a2007,
-        0xf7ff71c8, 0x4606ff01, 0xb10869b8, 0x478069b8, 0xe004b106, 0x0808f108, 0x2d003d08, 0xbf00d1dd,
-        0xe7cd4630, 0x000001b0, 0x40020000, 0x4dffe92d, 0x4682b082, 0x2310460c, 0x46504621, 0xf7ff9a04,
-        0x4683ff83, 0x0f00f1bb, 0x4658d003, 0xe8bdb006, 0xe9da8df0, 0xfbb00101, 0x4260f7f1, 0x40084279,
-        0x42a54245, 0x443dd100, 0xe0229e04, 0x0804eba5, 0xd90045b0, 0xea4f46b0, 0x90011018, 0x4478480f,
-        0x60046800, 0x490e2001, 0x980171c8, 0x72c80a00, 0x72889801, 0x72489805, 0xfeb6f7ff, 0xf1bb4683,
-        0xd0010f00, 0xe7d14658, 0x0608eba6, 0x443d4444, 0x2e00bf00, 0x2000d1da, 0x0000e7c8, 0x0000010e,
-        0x40020000, 0x4604b570, 0xb90c460d, 0xbd702004, 0x49032040, 0x460871c8, 0xf7ff7185, 0xe7f6fe95,
-        0x40020000, 0x4dffe92d, 0x4617460c, 0xe9dd461d, 0xf8ddb80c, 0xb91da038, 0xb0042004, 0x8df0e8bd,
-        0x463a2304, 0x98004621, 0xff1ef7ff, 0xb10e4606, 0xe7f24630, 0x4814e022, 0x68004478, 0x20026004,
-        0x71c84912, 0xf8804608, 0x490fb00b, 0x39144479, 0x68096828, 0xf7ff6088, 0x4606fe67, 0xf1b8b15e,
-        0xd0010f00, 0x4000f8c8, 0x0f00f1ba, 0x2000d002, 0x0000f8ca, 0x1f3fe004, 0x1d241d2d, 0xd1da2f00,
-        0x4630bf00, 0x0000e7c9, 0x00000074, 0x40020000, 0x00000000, 0x00080000, 0x00100000, 0x00200000,
-        0x00400000, 0x00800000, 0x01000000, 0x01000000, 0x40020004, 0x00000000,
-    ],
-    load_address: 0x20000000,
-    minProgramLength: 8,
-    pageBuffers: [0x20003000, 0x20004000],
-    pcEraseAll: 0x20000059,
-    pcEraseSector: 0x2000007d,
-    pcInit: 0x20000021,
-    pcProgramPage: 0x200000ab,
-    staticBase: 0x20000000 + 0x20 + 0x474,
-};
+var k64f_flash_1 = __webpack_require__(9);
 var K64F = (function (_super) {
     __extends(K64F, _super);
     function K64F(device) {
         var _this = _super.call(this, device) || this;
-        _this.flashAlgo = K64FFlashAlgo;
+        _this.flashAlgo = k64f_flash_1.K64F_FLASH_ALGO;
         return _this;
     }
     /**
@@ -1897,24 +2014,17 @@ var K64F = (function (_super) {
                     case 0: return [4 /*yield*/, this.halt()];
                     case 1:
                         _a.sent();
-                        // setTargetState("program")
-                        return [4 /*yield*/, this.resetStopOnReset()];
-                    case 2:
-                        // setTargetState("program")
-                        _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(16 /* XPSR */, 0x1000000)];
-                    case 3:
-                        _a.sent();
                         return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.flashAlgo.staticBase)];
-                    case 4:
+                    case 2:
                         _a.sent();
-                        return [4 /*yield*/, this.runCode(this.flashAlgo.code, this.flashAlgo.load_address, this.flashAlgo.pcInit, this.flashAlgo.beginStack, this.flashAlgo.load_address - 1)];
-                    case 5:
+                        return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcInit + this.flashAlgo.loadAddress + 0x20, this.flashAlgo.stackPointer, this.flashAlgo.breakpointLocation)];
+                    case 3:
                         result = _a.sent();
-                        if (result !== 0) {
-                            throw new Error("Invalid result code running flash init.");
-                        }
-                        return [2 /*return*/];
+                        console.log("run! " + result);
+                        // if (result !== 0) {
+                        //     // throw new Error("Invalid result code running flash init.");
+                        // }
+                        return [2 /*return*/, result];
                 }
             });
         });
@@ -1943,7 +2053,7 @@ var K64F = (function (_super) {
             var result, finalPC;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.runCode(this.flashAlgo.code, this.flashAlgo.load_address, this.flashAlgo.pcEraseAll, this.flashAlgo.load_address - 1)];
+                    case 0: return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcEraseAll, this.flashAlgo.breakpointLocation)];
                     case 1:
                         result = _a.sent();
                         return [4 /*yield*/, this.readCoreRegister(15 /* PC */)];
@@ -1987,72 +2097,105 @@ var K64F = (function (_super) {
             });
         });
     };
-    /**
-     * Run specified machine code natively on the device. Assumes usual C calling conventions
-     * - returns the value of r0 once the program has terminated. The program _must_ terminate
-     * in order for this function to return. This can be achieved by placing a `bkpt`
-     * instruction at the end of the function.
-     *
-     * **FIXME**: currently causes a hard fault when the core is resumed after successfully uploading
-     * the blob to memory and setting core registers.
-     *
-     * @param code array containing the machine code (32-bit words).
-     * @param address memory address at which to place the code.
-     * @param pc initial value of the program counter.
-     * @param sp initial value of the stack pointer.
-     * @param lr initial value of the link register.
-     *
-     * @returns A promise for the value of r0 on completion of the function call.
-     */
-    K64F.prototype.runCode = function (code, address, pc, lr, sp) {
-        if (sp === void 0) { sp = null; }
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // upload flashing algorithm to flashAlgo.load_address
-                    return [4 /*yield*/, this.halt()];
-                    case 1:
-                        // upload flashing algorithm to flashAlgo.load_address
-                        _a.sent();
-                        // write the flash algorithm to memory
-                        return [4 /*yield*/, this.writeBlock(this.flashAlgo.load_address, this.flashAlgo.code)];
-                    case 2:
-                        // write the flash algorithm to memory
-                        _a.sent();
-                        // write registers
-                        return [4 /*yield*/, this.writeCoreRegister(15 /* PC */, pc)];
-                    case 3:
-                        // write registers
-                        _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(14 /* LR */, lr)];
-                    case 4:
-                        _a.sent();
-                        if (!sp) return [3 /*break*/, 6];
-                        return [4 /*yield*/, this.writeCoreRegister(13 /* SP */, sp)];
-                    case 5:
-                        _a.sent();
-                        _a.label = 6;
-                    case 6: 
-                    // resume core
-                    return [4 /*yield*/, this.resume()];
-                    case 7:
-                        // resume core
-                        _a.sent();
-                        _a.label = 8;
-                    case 8: return [4 /*yield*/, this.getState()];
-                    case 9:
-                        if (!((_a.sent()) === 4 /* TARGET_RUNNING */)) return [3 /*break*/, 10];
-                        return [3 /*break*/, 8];
-                    case 10: return [4 /*yield*/, this.readCoreRegister(0 /* R0 */)];
-                    case 11: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
     return K64F;
 }(dapjs_1.CortexM));
 exports.K64F = K64F;
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/*
+ Flash OS Routines (Automagically Generated)
+ Copyright (c) 2017-2017 ARM Limited
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.K64F_FLASH_ALGO = {
+    // Flash algorithm as a hex string
+    instructions: [
+        0xb510483e, 0x5120f24c, 0xf64d81c1, 0x81c11128, 0xf0218801, 0x80010101, 0x78414839, 0x0160f001,
+        0xbf0c2940, 0x21002101, 0x444a4a36, 0xb1397011, 0xf0217841, 0x70410160, 0xf0117841, 0xd1fb0f60,
+        0x44484831, 0xf864f000, 0xbf182800, 0xbd102001, 0x4448482c, 0xb1587800, 0x78414829, 0x0160f021,
+        0x0140f041, 0x78417041, 0x0160f001, 0xd1fa2940, 0x47702000, 0xb5104824, 0x44484924, 0xf891f000,
+        0xbf182800, 0x2100bd10, 0xe8bd481f, 0x44484010, 0xb958f000, 0x4c1cb570, 0x444c4605, 0x4b1b4601,
+        0x68e24620, 0xf8b6f000, 0xbf182800, 0x2300bd70, 0x68e24629, 0x4070e8bd, 0x44484813, 0xb94cf000,
+        0x460cb570, 0x4606460b, 0x480f4601, 0x4615b084, 0xf0004448, 0x2800f8eb, 0xb004bf1c, 0x2000bd70,
+        0xe9cd2101, 0x90021000, 0x462b4807, 0x46314622, 0xf0004448, 0xb004f97f, 0x0000bd70, 0x40052000,
+        0x4007e000, 0x00000004, 0x00000008, 0x6b65666b, 0xbf042800, 0x47702004, 0x6cc949ea, 0x6103f3c1,
+        0xbf08290f, 0x1180f44f, 0x4ae7bf1f, 0xf832447a, 0x02891011, 0xe9c02200, 0x21022100, 0x61426081,
+        0x618202c9, 0x1203e9c0, 0x52a0f04f, 0x2108e9c0, 0x47702000, 0xbf0e2800, 0x61012004, 0x47702000,
+        0x48da4602, 0x49d96840, 0x0070f440, 0x47706048, 0x217048d7, 0x21807001, 0x78017001, 0x0f80f011,
+        0x7800d0fb, 0x0f20f010, 0x2067bf1c, 0xf0104770, 0xbf1c0f10, 0x47702068, 0x0001f010, 0x2069bf18,
+        0x28004770, 0x2004bf04, 0xb5104770, 0x4ac84604, 0x403bf06f, 0x48c76050, 0xbf144281, 0x2000206b,
+        0xbf182800, 0x4620bd10, 0xffd2f7ff, 0x46204603, 0xffc6f7ff, 0xbd104618, 0xbf042800, 0x47702004,
+        0x60532300, 0x60d36093, 0x61536113, 0x61d36193, 0x68c16011, 0xe9d06051, 0xfbb11001, 0x6090f0f0,
+        0x21102008, 0x0103e9c2, 0x1005e9c2, 0x61d02004, 0x47702000, 0x4df0e92d, 0x4615b088, 0x460c4698,
+        0x466a4682, 0xffd8f7ff, 0x4621462a, 0x9b044650, 0xf931f000, 0xbf1c0007, 0xe8bdb008, 0xe9dd8df0,
+        0x19604600, 0xfbb51e45, 0xfb06f0f6, 0xb1205010, 0xf0f6fbb5, 0x43701c40, 0x42ac1e45, 0xf8dfbf98,
+        0xd81cb270, 0x407ff024, 0x6010f040, 0x0004f8cb, 0x45804898, 0x206bbf14, 0x28002000, 0xb008bf1c,
+        0x8df0e8bd, 0xf7ff4650, 0x4607ff73, 0x0010f8da, 0xbf182800, 0xb9174780, 0x42ac4434, 0x4650d9e2,
+        0xff5ef7ff, 0x4638b008, 0x8df0e8bd, 0xbf042a00, 0x47702004, 0x45f0e92d, 0x4614b089, 0x460d461e,
+        0x466a4680, 0xff88f7ff, 0x46294632, 0x9b034640, 0xf8e1f000, 0xbf1c0007, 0xe8bdb009, 0x9d0085f0,
+        0xbf182e00, 0xa1e8f8df, 0xf854d025, 0xf8ca0b04, 0x98030008, 0xbf042804, 0x407ff025, 0x60c0f040,
+        0x2808d009, 0xf854d109, 0xf8ca0b04, 0xf025000c, 0xf040407f, 0xf8ca60e0, 0x46400004, 0xff28f7ff,
+        0x1010f8d8, 0x29004607, 0x4788bf18, 0x9803b91f, 0x1a364405, 0x4640d1d9, 0xff12f7ff, 0x4638b009,
+        0x85f0e8bd, 0xbf042800, 0x47702004, 0xea424a62, 0x4a5f4101, 0xe70b6051, 0x4dffe92d, 0x4614b088,
+        0x460d469a, 0x9808466a, 0xff36f7ff, 0x46294622, 0x98089b05, 0xf88ff000, 0xbf1c2800, 0xe8bdb00c,
+        0x466a8df0, 0x98084629, 0xff26f7ff, 0xf8dd9e00, 0x42708008, 0x0100f1c8, 0x42474008, 0xbf0842b7,
+        0x2c004447, 0xf8dfbf18, 0xd01fb128, 0x42a51bbd, 0x4625bf88, 0xf0269805, 0xfbb5417f, 0xf041f0f0,
+        0xf8cb7180, 0x04001004, 0x200aea40, 0x00fff040, 0x0008f8cb, 0xf7ff9808, 0x2800fecb, 0xb00cbf1c,
+        0x8df0e8bd, 0x442e1b64, 0xd1df4447, 0x2000b00c, 0x8df0e8bd, 0xbf042b00, 0x47702004, 0x4dffe92d,
+        0x4616b088, 0x7a14e9dd, 0x460c461d, 0xf8dd466a, 0x98088058, 0xfee0f7ff, 0x3007e9dd, 0x46214632,
+        0xf839f000, 0xbf1c2800, 0xe8bdb00c, 0x9c008df0, 0xbf042e00, 0xe8bdb00c, 0xf8df8df0, 0xf06fb094,
+        0xea40407f, 0xf0246707, 0xf040407f, 0xf8cb7000, 0xf8cb0004, 0x68287008, 0x000cf8cb, 0xf7ff9808,
+        0xb168fe87, 0x0f00f1ba, 0xf8cabf18, 0xf1b84000, 0xbf1c0f00, 0xf8c82100, 0xb00c1000, 0x8df0e8bd,
+        0x1a769907, 0x0103f021, 0x9907440d, 0xd1da440c, 0xe8bdb00c, 0x28008df0, 0x2004bf04, 0xf1a34770,
+        0x42190301, 0x421abf0e, 0x47702065, 0x428b6803, 0x6840d806, 0x44184411, 0xbf244288, 0x47702000,
+        0x47702066, 0x40048000, 0x000003b4, 0x4001f000, 0x40020000, 0x6b65666b, 0x4000ffff, 0x40020004,
+        0x40020010, 0x00100008, 0x00200018, 0x00400030, 0x00800060, 0x010000c0, 0x02000180, 0x04000300,
+        0x00000600, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    ],
+    // Relative function addresses
+    pcInit: 0x1,
+    pcUnInit: 0x51,
+    pcProgramPage: 0xc1,
+    pcEraseSector: 0x95,
+    pcEraseAll: 0x75,
+    // Relative region addresses and sizes
+    roStart: 0x0,
+    roSize: 0x504,
+    rwStart: 0x504,
+    rwSize: 0x8,
+    ziStart: 0x50c,
+    ziSize: 0x34,
+    // Flash information
+    flashStart: 0x0,
+    flashSize: 0x0,
+    pageSize: 0x400,
+    sectorSizes: [
+        [0x0, 0x400],
+    ],
+    breakpointLocation: 0x20000001,
+    staticBase: 0x20000524,
+    stackPointer: 0x20000800,
+    loadAddress: 0x20000000,
+};
 
 
 /***/ })
