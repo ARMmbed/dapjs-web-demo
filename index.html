@@ -7,31 +7,123 @@
 
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script src="/bin/dap.bundle.js"></script>
-        <!-- <script src="/lib/capstone.js/dist/capstone.min.js"></script> -->
+        <script src="/lib/flat-ui/dist/js/flat-ui.min.js"></script>
+
+        <link href="/lib/flat-ui/dist/css/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/lib/flat-ui/dist/css/flat-ui.min.css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
 
         <script>
-        
-            
+        $(function() {
+            $("select").select2({dropdownCssClass: 'dropdown-inverse'});
+        });
         </script>
 
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
         <style type="text/css">
             body {
-                font-family: 'Open Sans', sans-serif;
+                font-family: 'Open Sans';            
+            }
+
+            .container {
+                width: 900px;
+                margin: 0 auto;
+
+                padding-top: 20px;
+            }
+
+            .demo_head {
+                margin-top: 20px;
             }
         </style>
-
     </head>
 
     <body>
 
-        <h1>DAPjs+WebUSB Demo</h1>
+        <div class='container'>
+            <p style="display: none" id="noWebUSB" class="palette palette-alizarin">
+            It looks like your browser does not support WebUSB, or does not have it enabled. For instructions about enabling it, <a href="https://developers.google.com/web/updates/2016/03/access-usb-devices-on-the-web#before_we_start" style="color: #000;">click here</a>.
+            </p>
 
-        <button id='click'>Click Me!</button>
+            <p class="lead demo_head">DAP.js Demo</p>
 
-        <button id='connect' disabled>DAP Connect</button>
+            <p>
+            Flash and debug mbed enabled development boards in the browser
+            using CMSIS-DAP over WebUSB. Currently tested in Google Chrome
+            on Windows with an <a href="https://developer.mbed.org/platforms/FRDM-K64F/">NXP Freedom K64F</a> and the <a href="http://tech.microbit.org/">micro:bit</a>.
+            </p>
 
-        <button id='flash'>Flash</button>
+            <p>
+            WebUSB is an experimental technology providing low-level USB
+            access from JavaScript code running in the browser.
+            </p>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <ol>
+                        <li>
+                            <p>
+                                Select target platform:
+                            </p>
+                            <p>
+                                <select class="form-control select select-info mbl" data-toggle="select">
+                                    <optgroup label="mbed-compatible boards">
+                                        <option value="microbit">micro:bit</option>
+                                        <option value="K64F">NXP Freedom K64F</option>
+                                    </optgroup>
+                                    <optgroup label="Others">
+                                        <option value="generic">Generic Cortex-M</option>
+                                    </optgroup>
+                                </select>
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                Connect to the device:
+                            </p>
+                            <p>
+                                <button id='click' class="btn btn-primary">Connect</button>
+        
+                                <p id='updates' style='display: none'></p>
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                Flash a binary:
+                            </p>
+                            <p>
+                                <button id='flash' class="btn btn-danger when-connected" disabled>Flash</button>
+                                <button id='flash-erase' class="btn btn-warning when-connected" disabled>Erase</button>
+                            </p>
+                        </li>
+
+                        <li>
+                            <p>
+                                Tools:
+                            </p>
+                            <p>
+                                <div class="btn-group">
+                                    <button id='halt' class="btn btn-danger when-connected" disabled>Halt</button>
+                                    <button id='resume' class="btn btn-primary when-connected" disabled>Resume</button>
+                                </div>
+                            </p>
+                            <p>
+                                <button id='step-instruction' class="btn btn-info when-connected" disabled>Step</button>
+                            </p>
+                            <p>
+                                <button id='registers' class="btn btn-info when-connected" disabled>Read Registers</button>
+                            </p>
+                            <p>
+                                <button id='breakpoints' class="btn btn-info when-connected" disabled>Print Breakpoints</button>
+                            </p>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="div-md-8">
+                    <pre id="trace"></pre>
+                </div>
+            </div>
+        </div>
 
     </body>
 
