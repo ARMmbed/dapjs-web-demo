@@ -39,6 +39,9 @@ export class K64F extends CortexM {
         await this.halt();
 
         await this.writeCoreRegister(CortexReg.R9, this.flashAlgo.staticBase);
+        await this.writeCoreRegister(CortexReg.R0, 0);
+        await this.writeCoreRegister(CortexReg.R1, 0);
+        await this.writeCoreRegister(CortexReg.R2, 0);
 
         const result = await this.runCode(
             this.flashAlgo.instructions,
@@ -49,10 +52,6 @@ export class K64F extends CortexM {
         );
 
         console.log(`run! ${result}`);
-
-        // if (result !== 0) {
-        //     // throw new Error("Invalid result code running flash init.");
-        // }
 
         return result;
     }
@@ -73,15 +72,21 @@ export class K64F extends CortexM {
      * Erase _all_ data stored in flash on the chip.
      */
     public async eraseChip() {
+        await this.halt();
+        
+        await this.writeCoreRegister(CortexReg.R9, this.flashAlgo.staticBase);
+        await this.writeCoreRegister(CortexReg.R0, 0);
+        await this.writeCoreRegister(CortexReg.R1, 0);
+        await this.writeCoreRegister(CortexReg.R2, 0);
+
         const result = await this.runCode(
             this.flashAlgo.instructions,
             this.flashAlgo.loadAddress,
-            this.flashAlgo.pcEraseAll,
+            this.flashAlgo.pcEraseAll + this.flashAlgo.loadAddress + 0x20,
+            this.flashAlgo.stackPointer,
             this.flashAlgo.breakpointLocation,
         );
-        const finalPC = await this.readCoreRegister(CortexReg.PC);
 
-        console.log(result, finalPC.toString(16));
         return result;
     }
 

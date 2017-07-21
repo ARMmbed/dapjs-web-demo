@@ -76,6 +76,9 @@ $(() => {
 
         const r0 = await cm.flashInit();
         log(`flashInit returned 0x${r0.toString(16)}`);
+
+        const r1 = await cm.eraseChip();
+        log(`flashErase returned 0x${r1.toString(16)}`);
     });
 
     $("#halt").click(async () => {

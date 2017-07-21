@@ -362,7 +362,7 @@ $(function () {
         });
     }); });
     $("#flash-erase").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        var r0;
+        var r0, r1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -373,6 +373,10 @@ $(function () {
                 case 1:
                     r0 = _a.sent();
                     log("flashInit returned 0x" + r0.toString(16));
+                    return [4 /*yield*/, cm.eraseChip()];
+                case 2:
+                    r1 = _a.sent();
+                    log("flashErase returned 0x" + r1.toString(16));
                     return [2 /*return*/];
             }
         });
@@ -2017,13 +2021,19 @@ var K64F = (function (_super) {
                         return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.flashAlgo.staticBase)];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcInit + this.flashAlgo.loadAddress + 0x20, this.flashAlgo.stackPointer, this.flashAlgo.breakpointLocation)];
+                        return [4 /*yield*/, this.writeCoreRegister(0 /* R0 */, 0)];
                     case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(1 /* R1 */, 0)];
+                    case 4:
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(2 /* R2 */, 0)];
+                    case 5:
+                        _a.sent();
+                        return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcInit + this.flashAlgo.loadAddress + 0x20, this.flashAlgo.stackPointer, this.flashAlgo.breakpointLocation)];
+                    case 6:
                         result = _a.sent();
                         console.log("run! " + result);
-                        // if (result !== 0) {
-                        //     // throw new Error("Invalid result code running flash init.");
-                        // }
                         return [2 /*return*/, result];
                 }
             });
@@ -2050,16 +2060,27 @@ var K64F = (function (_super) {
      */
     K64F.prototype.eraseChip = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var result, finalPC;
+            var result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcEraseAll, this.flashAlgo.breakpointLocation)];
+                    case 0: return [4 /*yield*/, this.halt()];
                     case 1:
-                        result = _a.sent();
-                        return [4 /*yield*/, this.readCoreRegister(15 /* PC */)];
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.flashAlgo.staticBase)];
                     case 2:
-                        finalPC = _a.sent();
-                        console.log(result, finalPC.toString(16));
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(0 /* R0 */, 0)];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(1 /* R1 */, 0)];
+                    case 4:
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(2 /* R2 */, 0)];
+                    case 5:
+                        _a.sent();
+                        return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcEraseAll + this.flashAlgo.loadAddress + 0x20, this.flashAlgo.stackPointer, this.flashAlgo.breakpointLocation)];
+                    case 6:
+                        result = _a.sent();
                         return [2 /*return*/, result];
                 }
             });

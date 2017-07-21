@@ -32,11 +32,11 @@
     "webhid": "github:matthewelse/webhid"
   },
   "devDependencies": {
-    "@types/jquery": "^3.2.8",
-    "ts-loader": "^2.3.0",
+    "@types/jquery": "^3.2.9",
+    "ts-loader": "^2.3.1",
     "tslint": "^5.5.0",
     "typedoc": "^0.7.1",
-    "typescript": "^2.4.1",
+    "typescript": "^2.4.2",
     "webpack": "^3.3.0"
   }
 }
