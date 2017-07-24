@@ -5,6 +5,9 @@
 
         <title>WebUSB tester</title>
 
+        <!-- Origin Trial Token, feature = WebUSB (For Chrome M57+), origin = https://matthewelse.github.io, expires = 2017-09-01 -->
+        <!-- <meta http-equiv="origin-trial" data-feature="WebUSB (For Chrome M57+)" data-expires="2017-09-01" content="Agg1dUAd6HgoimGMqfcSd5GfQp8An+pGicw7v9s94bosQcSkQTo0R6p85N0+HDc5yS5eMDzfJXnJgdVMRhAawQEAAABWeyJvcmlnaW4iOiJodHRwczovL21hdHRoZXdlbHNlLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiV2ViVVNCMiIsImV4cGlyeSI6MTUwNDI1NTQyMX0=">  -->
+
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script src="bin/dap.bundle.js"></script>
         <script src="lib/flat-ui/dist/js/flat-ui.min.js"></script>
@@ -15,7 +18,7 @@
 
         <script>
         $(function() {
-            $("select").select2({dropdownCssClass: 'dropdown-inverse'});
+            // $("select").select2({dropdownCssClass: 'dropdown-inverse'});
         });
         </script>
 
@@ -25,7 +28,7 @@
             }
 
             .container {
-                width: 900px;
+                max-width: 900px;
                 margin: 0 auto;
 
                 padding-top: 20px;
@@ -62,28 +65,29 @@
                     <ol>
                         <li>
                             <p>
-                                Select target platform:
+                                Select a device:
                             </p>
                             <p>
-                                <select class="form-control select select-info mbl" data-toggle="select">
-                                    <optgroup label="mbed-compatible boards">
-                                        <option value="microbit">micro:bit</option>
-                                        <option value="K64F">NXP Freedom K64F</option>
-                                    </optgroup>
-                                    <optgroup label="Others">
-                                        <option value="generic">Generic Cortex-M</option>
-                                    </optgroup>
-                                </select>
+                                <button id='choose' class="btn btn-primary">Choose</button>
                             </p>
                         </li>
                         <li>
                             <p>
-                                Connect to the device:
+                                Choose platform:
                             </p>
                             <p>
-                                <button id='click' class="btn btn-primary">Connect</button>
-        
-                                <p id='updates' style='display: none'></p>
+                                <select id="platform-chooser" class="form-control" disabled>
+                                    <optgroup label="Detected" id="platform-detected">
+                                    </optgroup>
+                                    <optgroup label="Others">
+                                        <option value="generic">Generic Cortex-M (no flash support)</option>
+                                        <option value="microbit">micro:bit</option>
+                                        <option value="K64F">NXP Freedom K64F</option>
+                                    </optgroup>
+                                </select>
+                            </p>
+                            <p>
+                                <button id='connect' class="btn btn-success" disabled>Connect</button>
                             </p>
                         </li>
                         <li>
@@ -112,9 +116,9 @@
                             <p>
                                 <button id='registers' class="btn btn-info when-connected" disabled>Read Registers</button>
                             </p>
-                            <p>
+                            <!-- <p>
                                 <button id='breakpoints' class="btn btn-info when-connected" disabled>Print Breakpoints</button>
-                            </p>
+                            </p> -->
                         </li>
                     </ol>
                 </div>

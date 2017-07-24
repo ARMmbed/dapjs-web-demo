@@ -1,5 +1,8 @@
 import {CoreState, CortexM, CortexReg, CortexSpecialReg, Device} from "dapjs";
+import {FlashTarget} from "./flash_target";
+
 import {K64F_FLASH_ALGO} from "./k64f_flash";
+import {MICROBIT_FLASH_ALGO} from "./microbit_flash";
 
 /**
  * Specifies all of the parameters associated with a flashing algorithm for a particular device. These
@@ -8,7 +11,7 @@ import {K64F_FLASH_ALGO} from "./k64f_flash";
  *
  * **TODO**: add JavaScript as a third target for FlashAlgo's output.
  */
-interface IFlashAlgo {
+export interface IFlashAlgo {
     loadAddress: number;
     pcInit: number;
     pcEraseAll: number;
@@ -18,15 +21,17 @@ interface IFlashAlgo {
     staticBase: number;
     instructions: number[];
     breakpointLocation: number;
+    pageSize: number;
+    flashStart: number;
 }
 
-export class K64F extends CortexM {
+export class MbedTarget extends FlashTarget {
     private flashAlgo: IFlashAlgo;
 
-    constructor(device: Device) {
+    constructor(device: Device, flashAlgo: IFlashAlgo) {
         super(device);
 
-        this.flashAlgo = K64F_FLASH_ALGO;
+        this.flashAlgo = flashAlgo;
     }
 
     /**
@@ -39,33 +44,21 @@ export class K64F extends CortexM {
         await this.halt();
 
         await this.writeCoreRegister(CortexReg.R9, this.flashAlgo.staticBase);
-        await this.writeCoreRegister(CortexReg.R0, 0);
-        await this.writeCoreRegister(CortexReg.R1, 0);
-        await this.writeCoreRegister(CortexReg.R2, 0);
 
         const result = await this.runCode(
             this.flashAlgo.instructions,
             this.flashAlgo.loadAddress,
             this.flashAlgo.pcInit + this.flashAlgo.loadAddress + 0x20,
-            this.flashAlgo.stackPointer,
             this.flashAlgo.breakpointLocation,
+            this.flashAlgo.stackPointer,
+            true,
+            0, 0, 0,
         );
 
-        console.log(`run! ${result}`);
+        // the board should be reset etc. afterwards
+        // we should also probably run the flash unInit routine
 
         return result;
-    }
-
-    /**
-     * Upload a binary blob to (non-volatile) flash memory, at the specified address. Uses the
-     * flashing algorithm relevant to the particular part - if you just want to upload to RAM,
-     * use `this.writeBlock`.
-     *
-     * @param code an array of 32-bit words representing the binary data to be uploaded.
-     * @param address starting address of the location in memory to upload to.
-     */
-    public async flash(code: number[], address = 0x0) {
-        throw new Error("Not implemented.");
     }
 
     /**
@@ -73,21 +66,53 @@ export class K64F extends CortexM {
      */
     public async eraseChip() {
         await this.halt();
-        
         await this.writeCoreRegister(CortexReg.R9, this.flashAlgo.staticBase);
-        await this.writeCoreRegister(CortexReg.R0, 0);
-        await this.writeCoreRegister(CortexReg.R1, 0);
-        await this.writeCoreRegister(CortexReg.R2, 0);
 
         const result = await this.runCode(
             this.flashAlgo.instructions,
             this.flashAlgo.loadAddress,
             this.flashAlgo.pcEraseAll + this.flashAlgo.loadAddress + 0x20,
-            this.flashAlgo.stackPointer,
             this.flashAlgo.breakpointLocation,
+            this.flashAlgo.stackPointer,
+            false,
+            0, 0, 0,
         );
 
         return result;
+    }
+
+    /**
+     * Upload a program to flash memory on the chip.
+     *
+     * @param data Array of 32-bit integers to write to flash.
+     */
+    public async flash(data: number[]) {
+        await this.halt();
+        await this.writeCoreRegister(CortexReg.R9, this.flashAlgo.staticBase);
+
+        for (let ptr = 0; ptr < data.length; ptr += this.flashAlgo.pageSize) {
+            const writeLength = Math.min(data.length - ptr, this.flashAlgo.pageSize);
+            const startAddress = this.flashAlgo.flashStart + ptr;
+            const bufferAddress = this.flashAlgo.staticBase;
+
+            console.log(`Writing program to memory: ${bufferAddress} ${data.length}`)
+            await this.writeBlock(bufferAddress, data.slice(ptr, ptr + this.flashAlgo.pageSize));
+
+            console.log("Running flashing algorithm");
+            const result = await this.runCode(
+                this.flashAlgo.instructions,
+                this.flashAlgo.loadAddress,
+                this.flashAlgo.pcProgramPage + this.flashAlgo.loadAddress + 0x20, // pc
+                this.flashAlgo.breakpointLocation, // lr
+                this.flashAlgo.stackPointer, // sp
+                /* upload? */
+                ptr === 0,
+                /* args */
+                startAddress, writeLength, bufferAddress,
+            );
+
+            console.log("Flashed first block.");
+        }
     }
 
     private async resetStopOnReset() {
@@ -105,3 +130,7 @@ export class K64F extends CortexM {
         await this.writeMem(CortexSpecialReg.DEMCR, demcr);
     }
 }
+
+export let FlashAlgos = new Map<string, IFlashAlgo>();
+FlashAlgos.set('0240', K64F_FLASH_ALGO);
+FlashAlgos.set('9900', MICROBIT_FLASH_ALGO);

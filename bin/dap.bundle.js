@@ -275,171 +275,229 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var dapjs_1 = __webpack_require__(1);
 var webhid_1 = __webpack_require__(7);
 var targets_1 = __webpack_require__(8);
-$(function () {
-    var hid;
-    var dev;
-    var cm;
-    if (!navigator.usb) {
-        $("#noWebUSB").show();
-        return;
+var logger_1 = __webpack_require__(11);
+var device_selector_1 = __webpack_require__(12);
+var DAPDemo = (function () {
+    function DAPDemo() {
+        var _this = this;
+        /**
+         * Define `choose` as ES6 arrow function so that `this` is bound to the instance of DAPDemo, rather than bound to
+         * the source of the click event.
+         */
+        this.choose = function () { return __awaiter(_this, void 0, void 0, function () {
+            var _a, info;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = this;
+                        return [4 /*yield*/, navigator.usb.requestDevice({ filters: [{ vendorId: 0x0d28 }] })];
+                    case 1:
+                        _a.device = _b.sent();
+                        this.deviceCode = this.device.serialNumber.slice(0, 4);
+                        return [4 /*yield*/, this.selector.lookupDevice(this.deviceCode)];
+                    case 2:
+                        info = _b.sent();
+                        this.selector.show(info);
+                        this.selector.enable();
+                        this.chooseButton.disabled = true;
+                        this.connectButton.disabled = false;
+                        return [2 /*return*/];
+                }
+            });
+        }); };
+        /**
+         * Define `connect` as ES6 arrow function so that `this` is bound to the instance of DAPDemo, rather than bound to
+         * the source of the click event.
+         */
+        this.connect = function () { return __awaiter(_this, void 0, void 0, function () {
+            var _a, imp, isa, type, elements, _i, elements_1, elem;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        this.hid = new webhid_1.default(this.device);
+                        // open hid device
+                        return [4 /*yield*/, this.hid.open()];
+                    case 1:
+                        // open hid device
+                        _b.sent();
+                        this.dapDevice = new dapjs_1.Device(this.hid);
+                        this.target = new targets_1.MbedTarget(this.dapDevice, targets_1.FlashAlgos.get(this.deviceCode));
+                        return [4 /*yield*/, this.target.init()];
+                    case 2:
+                        _b.sent();
+                        return [4 /*yield*/, this.target.halt()];
+                    case 3:
+                        _b.sent();
+                        return [4 /*yield*/, this.target.readCoreType()];
+                    case 4:
+                        _a = _b.sent(), imp = _a[0], isa = _a[1], type = _a[2];
+                        this.log("Connected to an ARM " + dapjs_1.CoreNames.get(type) + " (" + dapjs_1.ISANames.get(isa) + ")");
+                        this.selector.disable();
+                        this.connectButton.disabled = true;
+                        elements = Array.from(document.querySelectorAll(".when-connected"));
+                        for (_i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
+                            elem = elements_1[_i];
+                            elem.disabled = false;
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        }); };
+        this.flash = function () { return __awaiter(_this, void 0, void 0, function () {
+            var _this = this;
+            var xhr;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.clearLog();
+                        this.log("Preparing to flash device.");
+                        return [4 /*yield*/, this.target.halt()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.target.init()];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.target.flashInit()];
+                    case 3:
+                        _a.sent();
+                        this.log("Halted and initialised device.");
+                        xhr = new XMLHttpRequest();
+                        xhr.open("GET", "blinky-red.bin", true);
+                        xhr.responseType = "arraybuffer";
+                        xhr.onload = function (e) { return __awaiter(_this, void 0, void 0, function () {
+                            var array;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        array = Array.from(new Uint32Array(xhr.response));
+                                        this.log("Binary file " + array.length + " words long");
+                                        // Push binary to board
+                                        return [4 /*yield*/, this.target.flash(array)];
+                                    case 1:
+                                        // Push binary to board
+                                        _a.sent();
+                                        this.log("Successfully flashed binary.");
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); };
+                        xhr.send();
+                        return [2 /*return*/];
+                }
+            });
+        }); };
+        this.halt = function () { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.target.halt()];
+                    case 1:
+                        _a.sent();
+                        this.log("Halted.");
+                        return [2 /*return*/];
+                }
+            });
+        }); };
+        this.resume = function () { return __awaiter(_this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.target.resume()];
+                    case 1:
+                        _a.sent();
+                        this.log("Resumed.");
+                        return [2 /*return*/];
+                }
+            });
+        }); };
+        this.erase = function () { return __awaiter(_this, void 0, void 0, function () {
+            var r0, r1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        // Erase flash
+                        this.clearLog();
+                        return [4 /*yield*/, this.target.halt()];
+                    case 1:
+                        _a.sent();
+                        this.log("Running flashInit");
+                        return [4 /*yield*/, this.target.flashInit()];
+                    case 2:
+                        r0 = _a.sent();
+                        this.log("flashInit returned 0x" + r0.toString(16));
+                        return [4 /*yield*/, this.target.eraseChip()];
+                    case 3:
+                        r1 = _a.sent();
+                        this.log("flashErase returned 0x" + r1.toString(16));
+                        return [2 /*return*/];
+                }
+            });
+        }); };
+        this.printRegisters = function () { return __awaiter(_this, void 0, void 0, function () {
+            var halt, st;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        halt = false;
+                        return [4 /*yield*/, this.target.halt()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.target.snapshotMachineState()];
+                    case 2:
+                        st = _a.sent();
+                        this.clearLog();
+                        this.log(dapjs_1.machineStateToString(st));
+                        return [2 /*return*/];
+                }
+            });
+        }); };
+        this.step = function () { return __awaiter(_this, void 0, void 0, function () {
+            var st;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.target.step()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.target.snapshotMachineState()];
+                    case 2:
+                        st = _a.sent();
+                        this.clearLog();
+                        this.log(dapjs_1.machineStateToString(st));
+                        return [2 /*return*/];
+                }
+            });
+        }); };
+        this.selector = new device_selector_1.PlatformSelector("platform-chooser", "platform-detected");
+        this.chooseButton = document.getElementById("choose");
+        this.connectButton = document.getElementById("connect");
+        this.flashButton = document.getElementById("flash");
+        this.eraseButton = document.getElementById("flash-erase");
+        this.printRegistersButton = document.getElementById("registers");
+        this.stepButton = document.getElementById("registers");
+        this.haltButton = document.getElementById("halt");
+        this.resumeButton = document.getElementById("halt");
+        this.chooseButton.onclick = this.choose;
+        this.connectButton.onclick = this.connect;
+        this.flashButton.onclick = this.flash;
+        this.eraseButton.onclick = this.erase;
+        this.printRegistersButton.onclick = this.printRegisters;
+        this.haltButton.onclick = this.halt;
+        this.resumeButton.onclick = this.resume;
+        this.logger = new logger_1.default("#trace");
     }
-    var log = function (str) {
-        $("#trace").append(str + "\n");
+    DAPDemo.prototype.log = function (s) {
+        this.logger.log("[demo] " + s);
     };
-    var logClear = function () {
-        $("#trace").html("");
+    DAPDemo.prototype.clearLog = function () {
+        this.logger.clear();
     };
-    $("#click").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        var device, _a, imp, isa, type, e_1;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    $("#platform").attr("disabled", 1);
-                    $("#click").attr("disabled", 1);
-                    $("#click").html("Connecting");
-                    return [4 /*yield*/, navigator.usb.requestDevice({ filters: [{ vendorId: 0x0d28 }] })];
-                case 1:
-                    device = _b.sent();
-                    hid = new webhid_1.default(device);
-                    return [4 /*yield*/, hid.open()];
-                case 2:
-                    _b.sent();
-                    _b.label = 3;
-                case 3:
-                    _b.trys.push([3, 8, , 10]);
-                    dev = new dapjs_1.Device(hid);
-                    cm = new targets_1.K64F(dev);
-                    return [4 /*yield*/, cm.init()];
-                case 4:
-                    _b.sent();
-                    return [4 /*yield*/, cm.halt()];
-                case 5:
-                    _b.sent();
-                    $("#click").html("Connected");
-                    log("Connected.");
-                    return [4 /*yield*/, cm.readCoreType()];
-                case 6:
-                    _a = _b.sent(), imp = _a[0], isa = _a[1], type = _a[2];
-                    log("Found an ARM " + dapjs_1.CoreNames.get(type) + " (" + dapjs_1.ISANames.get(isa) + ")");
-                    return [4 /*yield*/, cm.resume()];
-                case 7:
-                    _b.sent();
-                    return [3 /*break*/, 10];
-                case 8:
-                    e_1 = _b.sent();
-                    console.error(e_1);
-                    return [4 /*yield*/, dev.close()];
-                case 9:
-                    _b.sent();
-                    return [3 /*break*/, 10];
-                case 10:
-                    $(".when-connected").attr("disabled", null);
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    $("#flash").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        var program, r0;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    // flash the microcontroller we have connected.
-                    logClear();
-                    log("Preparing to Flash MCU.");
-                    program = [0x2034F241, 0xbe00];
-                    return [4 /*yield*/, cm.runCode(program, 0x20000020, 0x20000021, 0x0, 0x0)];
-                case 1:
-                    r0 = _a.sent();
-                    log("Got r0=0x" + r0.toString(16));
-                    log("Done.");
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    $("#flash-erase").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        var r0, r1;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    // Erase flash
-                    logClear();
-                    log("Running flashInit");
-                    return [4 /*yield*/, cm.flashInit()];
-                case 1:
-                    r0 = _a.sent();
-                    log("flashInit returned 0x" + r0.toString(16));
-                    return [4 /*yield*/, cm.eraseChip()];
-                case 2:
-                    r1 = _a.sent();
-                    log("flashErase returned 0x" + r1.toString(16));
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    $("#halt").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, cm.halt()];
-                case 1:
-                    _a.sent();
-                    log("Halted.");
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    $("#resume").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, cm.resume()];
-                case 1:
-                    _a.sent();
-                    log("Resumed.");
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    $("#registers").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        var halt, st;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    halt = false;
-                    return [4 /*yield*/, cm.halt()];
-                case 1:
-                    _a.sent();
-                    return [4 /*yield*/, cm.snapshotMachineState()];
-                case 2:
-                    st = _a.sent();
-                    // await cm.resume();
-                    logClear();
-                    log(dapjs_1.machineStateToString(st));
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-    $("#step-instruction").click(function () { return __awaiter(_this, void 0, void 0, function () {
-        var st;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0: return [4 /*yield*/, cm.step()];
-                case 1:
-                    _a.sent();
-                    return [4 /*yield*/, cm.snapshotMachineState()];
-                case 2:
-                    st = _a.sent();
-                    // await cm.resume();
-                    logClear();
-                    log(dapjs_1.machineStateToString(st));
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-});
+    return DAPDemo;
+}());
+window.onload = function () {
+    var demo = new DAPDemo();
+};
 
 
 /***/ }),
@@ -1083,9 +1141,13 @@ var CortexM = (function () {
      *
      * @returns A promise for the value of r0 on completion of the function call.
      */
-    CortexM.prototype.runCode = function (code, address, pc, lr, sp) {
-        if (sp === void 0) { sp = null; }
+    CortexM.prototype.runCode = function (code, address, pc, lr, sp, upload) {
+        var args = [];
+        for (var _i = 6; _i < arguments.length; _i++) {
+            args[_i - 6] = arguments[_i];
+        }
         return __awaiter(this, void 0, void 0, function () {
+            var i;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: 
@@ -1105,16 +1167,36 @@ var CortexM = (function () {
                         return [4 /*yield*/, this.writeCoreRegister(13 /* SP */, sp)];
                     case 4:
                         _a.sent();
-                        // Write the program to memory at the specified address
-                        return [4 /*yield*/, this.writeBlock(address, code)];
+                        i = 0;
+                        _a.label = 5;
                     case 5:
-                        // Write the program to memory at the specified address
+                        if (!(i < args.length)) return [3 /*break*/, 8];
+                        return [4 /*yield*/, this.writeCoreRegister(i, args[i])];
+                    case 6:
                         _a.sent();
-                        return [4 /*yield*/, this.readCoreRegister(0 /* R0 */)];
-                    case 6: 
+                        _a.label = 7;
+                    case 7:
+                        i++;
+                        return [3 /*break*/, 5];
+                    case 8:
+                        if (!upload) return [3 /*break*/, 10];
+                        return [4 /*yield*/, this.writeBlock(address, code)];
+                    case 9:
+                        _a.sent();
+                        _a.label = 10;
+                    case 10: 
                     // Run the program
-                    // await this.resume();
-                    return [2 /*return*/, _a.sent()];
+                    return [4 /*yield*/, this.resume()];
+                    case 11:
+                        // Run the program
+                        _a.sent();
+                        _a.label = 12;
+                    case 12: return [4 /*yield*/, this.isHalted()];
+                    case 13:
+                        if (!!(_a.sent())) return [3 /*break*/, 14];
+                        return [3 /*break*/, 12];
+                    case 14: return [4 /*yield*/, this.readCoreRegister(0 /* R0 */)];
+                    case 15: return [2 /*return*/, _a.sent()];
                 }
             });
         });
@@ -1995,13 +2077,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var dapjs_1 = __webpack_require__(1);
+var flash_target_1 = __webpack_require__(10);
 var k64f_flash_1 = __webpack_require__(9);
-var K64F = (function (_super) {
-    __extends(K64F, _super);
-    function K64F(device) {
+var microbit_flash_1 = __webpack_require__(13);
+var MbedTarget = (function (_super) {
+    __extends(MbedTarget, _super);
+    function MbedTarget(device, flashAlgo) {
         var _this = _super.call(this, device) || this;
-        _this.flashAlgo = k64f_flash_1.K64F_FLASH_ALGO;
+        _this.flashAlgo = flashAlgo;
         return _this;
     }
     /**
@@ -2010,7 +2093,7 @@ var K64F = (function (_super) {
      *
      * **TODO**: check that this has been called before calling other flash methods.
      */
-    K64F.prototype.flashInit = function () {
+    MbedTarget.prototype.flashInit = function () {
         return __awaiter(this, void 0, void 0, function () {
             var result;
             return __generator(this, function (_a) {
@@ -2021,44 +2104,20 @@ var K64F = (function (_super) {
                         return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.flashAlgo.staticBase)];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(0 /* R0 */, 0)];
+                        return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcInit + this.flashAlgo.loadAddress + 0x20, this.flashAlgo.breakpointLocation, this.flashAlgo.stackPointer, true, 0, 0, 0)];
                     case 3:
-                        _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(1 /* R1 */, 0)];
-                    case 4:
-                        _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(2 /* R2 */, 0)];
-                    case 5:
-                        _a.sent();
-                        return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcInit + this.flashAlgo.loadAddress + 0x20, this.flashAlgo.stackPointer, this.flashAlgo.breakpointLocation)];
-                    case 6:
                         result = _a.sent();
-                        console.log("run! " + result);
+                        // the board should be reset etc. afterwards
+                        // we should also probably run the flash unInit routine
                         return [2 /*return*/, result];
                 }
-            });
-        });
-    };
-    /**
-     * Upload a binary blob to (non-volatile) flash memory, at the specified address. Uses the
-     * flashing algorithm relevant to the particular part - if you just want to upload to RAM,
-     * use `this.writeBlock`.
-     *
-     * @param code an array of 32-bit words representing the binary data to be uploaded.
-     * @param address starting address of the location in memory to upload to.
-     */
-    K64F.prototype.flash = function (code, address) {
-        if (address === void 0) { address = 0x0; }
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                throw new Error("Not implemented.");
             });
         });
     };
     /**
      * Erase _all_ data stored in flash on the chip.
      */
-    K64F.prototype.eraseChip = function () {
+    MbedTarget.prototype.eraseChip = function () {
         return __awaiter(this, void 0, void 0, function () {
             var result;
             return __generator(this, function (_a) {
@@ -2069,24 +2128,62 @@ var K64F = (function (_super) {
                         return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.flashAlgo.staticBase)];
                     case 2:
                         _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(0 /* R0 */, 0)];
+                        return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcEraseAll + this.flashAlgo.loadAddress + 0x20, this.flashAlgo.breakpointLocation, this.flashAlgo.stackPointer, false, 0, 0, 0)];
                     case 3:
-                        _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(1 /* R1 */, 0)];
-                    case 4:
-                        _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(2 /* R2 */, 0)];
-                    case 5:
-                        _a.sent();
-                        return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcEraseAll + this.flashAlgo.loadAddress + 0x20, this.flashAlgo.stackPointer, this.flashAlgo.breakpointLocation)];
-                    case 6:
                         result = _a.sent();
                         return [2 /*return*/, result];
                 }
             });
         });
     };
-    K64F.prototype.resetStopOnReset = function () {
+    /**
+     * Upload a program to flash memory on the chip.
+     *
+     * @param data Array of 32-bit integers to write to flash.
+     */
+    MbedTarget.prototype.flash = function (data) {
+        return __awaiter(this, void 0, void 0, function () {
+            var ptr, writeLength, startAddress, bufferAddress, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.halt()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.flashAlgo.staticBase)];
+                    case 2:
+                        _a.sent();
+                        ptr = 0;
+                        _a.label = 3;
+                    case 3:
+                        if (!(ptr < data.length)) return [3 /*break*/, 7];
+                        writeLength = Math.min(data.length - ptr, this.flashAlgo.pageSize);
+                        startAddress = this.flashAlgo.flashStart + ptr;
+                        bufferAddress = this.flashAlgo.staticBase;
+                        console.log("Writing program to memory: " + bufferAddress + " " + data.length);
+                        return [4 /*yield*/, this.writeBlock(bufferAddress, data.slice(ptr, ptr + this.flashAlgo.pageSize))];
+                    case 4:
+                        _a.sent();
+                        console.log("Running flashing algorithm");
+                        return [4 /*yield*/, this.runCode(this.flashAlgo.instructions, this.flashAlgo.loadAddress, this.flashAlgo.pcProgramPage + this.flashAlgo.loadAddress + 0x20, // pc
+                            this.flashAlgo.breakpointLocation, // lr
+                            this.flashAlgo.stackPointer, // sp
+                            /* upload? */
+                            ptr === 0, 
+                            /* args */
+                            startAddress, writeLength, bufferAddress)];
+                    case 5:
+                        result = _a.sent();
+                        console.log("Flashed first block.");
+                        _a.label = 6;
+                    case 6:
+                        ptr += this.flashAlgo.pageSize;
+                        return [3 /*break*/, 3];
+                    case 7: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    MbedTarget.prototype.resetStopOnReset = function () {
         return __awaiter(this, void 0, void 0, function () {
             var demcr;
             return __generator(this, function (_a) {
@@ -2118,9 +2215,12 @@ var K64F = (function (_super) {
             });
         });
     };
-    return K64F;
-}(dapjs_1.CortexM));
-exports.K64F = K64F;
+    return MbedTarget;
+}(flash_target_1.FlashTarget));
+exports.MbedTarget = MbedTarget;
+exports.FlashAlgos = new Map();
+exports.FlashAlgos.set('0240', k64f_flash_1.K64F_FLASH_ALGO);
+exports.FlashAlgos.set('9900', microbit_flash_1.MICROBIT_FLASH_ALGO);
 
 
 /***/ }),
@@ -2216,6 +2316,214 @@ exports.K64F_FLASH_ALGO = {
     staticBase: 0x20000524,
     stackPointer: 0x20000800,
     loadAddress: 0x20000000,
+};
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var dapjs_1 = __webpack_require__(1);
+var FlashTarget = (function (_super) {
+    __extends(FlashTarget, _super);
+    function FlashTarget() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return FlashTarget;
+}(dapjs_1.CortexM));
+exports.FlashTarget = FlashTarget;
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var HTMLLogger = (function () {
+    function HTMLLogger(selector) {
+        this.element = document.querySelector(selector);
+    }
+    HTMLLogger.prototype.log = function (data) {
+        this.element.innerHTML = this.element.innerHTML + data + "\n";
+    };
+    HTMLLogger.prototype.clear = function () {
+        this.element.innerHTML = "";
+    };
+    return HTMLLogger;
+}());
+exports.default = HTMLLogger;
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var PlatformSelector = (function () {
+    function PlatformSelector(id, devices) {
+        var elem = document.getElementById(id);
+        this.deviceElement = document.getElementById(devices);
+        if (elem.nodeName === "SELECT") {
+            this.element = elem;
+        }
+        else {
+            console.log(elem.nodeName);
+            throw new Error("select element must be chosen");
+        }
+        this.deviceCache = new Map();
+    }
+    PlatformSelector.prototype.show = function (platform) {
+        this.deviceElement.innerHTML =
+            "<option value='" + platform.productCode + "' id='" + platform.productCode + "'>" + platform.name + "</option>";
+        this.element.value = platform.productCode;
+    };
+    PlatformSelector.prototype.enable = function () {
+        this.element.disabled = false;
+    };
+    PlatformSelector.prototype.disable = function () {
+        this.element.disabled = true;
+    };
+    PlatformSelector.prototype.lookupDevice = function (code) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var xhr;
+            return __generator(this, function (_a) {
+                if (this.deviceCache.has(code)) {
+                    return [2 /*return*/, this.deviceCache.get(code)];
+                }
+                xhr = new XMLHttpRequest();
+                xhr.open("get", "https://developer.mbed.org/api/v3/platforms/" + code, true);
+                xhr.responseType = "json";
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        xhr.onload = function (e) {
+                            var device = {
+                                name: xhr.response.name,
+                                productCode: xhr.response.productcode,
+                            };
+                            _this.deviceCache.set(code, device);
+                            resolve(device);
+                        };
+                        xhr.send();
+                    })];
+            });
+        });
+    };
+    return PlatformSelector;
+}());
+exports.PlatformSelector = PlatformSelector;
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/*
+ Flash OS Routines (Automagically Generated)
+ Copyright (c) 2017-2017 ARM Limited
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MICROBIT_FLASH_ALGO = {
+    // Flash algorithm as a hex string
+    instructions: [
+        0x47702000, 0x47702000, 0x4c34b4f0, 0x60602002, 0x60e02001, 0x4e334d32, 0x4b344f33, 0x07c06828,
+        0x2000d003, 0xbcf06060, 0x68704770, 0x0e000600, 0x6879d0f4, 0xd0f12900, 0x07c2492d, 0x600bd000,
+        0x08401d09, 0xe7e9d1f9, 0x4c24b4f0, 0x60612102, 0x42884928, 0x2001d302, 0xe0006160, 0x4e2160a0,
+        0x4d234f21, 0x68704b21, 0x0e000600, 0x6879d009, 0xd0062900, 0x07c24629, 0x600bd000, 0x08401d09,
+        0x4817d1f9, 0x07c06800, 0x2000d0ed, 0xbcf06060, 0xb4f04770, 0x4911088e, 0x604b2301, 0x4d134f11,
+        0xc002ca02, 0x6809490e, 0xd00707c9, 0xd1f71e76, 0x2100480a, 0xbcf06041, 0x47704608, 0x06096879,
+        0xd0ef0e09, 0x685b4b08, 0xd0eb2b00, 0x07cc4b08, 0x601dd000, 0x08491d1b, 0xe7e3d1f9, 0x4001e500,
+        0x4001e400, 0x40010400, 0x40010500, 0x6e524635, 0x40010600, 0x10001000, 0x00000000
+    ],
+    // Relative function addresses
+    pcInit: 0x1,
+    pcUnInit: 0x5,
+    pcProgramPage: 0x93,
+    pcEraseSector: 0x49,
+    pcEraseAll: 0x9,
+    // Relative region addresses and sizes
+    roStart: 0x0,
+    roSize: 0xf8,
+    rwStart: 0xf8,
+    rwSize: 0x4,
+    ziStart: 0xfc,
+    ziSize: 0x0,
+    // Flash information
+    flashStart: 0x0,
+    flashSize: 0x40000,
+    pageSize: 0x4,
+    sectorSizes: [
+        [0x0, 0x400],
+    ],
+    breakpointLocation: 0x20000001,
+    staticBase: 0x20000118,
+    stackPointer: 0x20000800,
+    loadAddress: 0x20000000
 };
 
 
