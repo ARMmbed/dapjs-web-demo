@@ -20,7 +20,7 @@
     "embedded",
     "webusb"
   ],
-  "author": "Matthew Else <matthewelse1997@gmail.com>",
+  "author": "Matthew Else <matthew.else@arm.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/matthewelse/dapjs-web-demo/issues"
@@ -29,10 +29,10 @@
   "dependencies": {
     "binary-parser": "^1.1.5",
     "dapjs": "github:matthewelse/dapjs",
+    "dapjs-targets": "github:matthewelse/dapjs-targets",
     "webhid": "github:matthewelse/webhid"
   },
   "devDependencies": {
-    "@types/jquery": "^3.2.9",
     "ts-loader": "^2.3.1",
     "tslint": "^5.5.0",
     "typedoc": "^0.7.1",

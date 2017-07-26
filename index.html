@@ -6,7 +6,7 @@
         <title>WebUSB tester</title>
 
         <!-- Origin Trial Token, feature = WebUSB (For Chrome M57+), origin = https://matthewelse.github.io, expires = 2017-09-01 -->
-        <!-- <meta http-equiv="origin-trial" data-feature="WebUSB (For Chrome M57+)" data-expires="2017-09-01" content="Agg1dUAd6HgoimGMqfcSd5GfQp8An+pGicw7v9s94bosQcSkQTo0R6p85N0+HDc5yS5eMDzfJXnJgdVMRhAawQEAAABWeyJvcmlnaW4iOiJodHRwczovL21hdHRoZXdlbHNlLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiV2ViVVNCMiIsImV4cGlyeSI6MTUwNDI1NTQyMX0=">  -->
+        <meta http-equiv="origin-trial" data-feature="WebUSB (For Chrome M57+)" data-expires="2017-09-01" content="Agg1dUAd6HgoimGMqfcSd5GfQp8An+pGicw7v9s94bosQcSkQTo0R6p85N0+HDc5yS5eMDzfJXnJgdVMRhAawQEAAABWeyJvcmlnaW4iOiJodHRwczovL21hdHRoZXdlbHNlLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiV2ViVVNCMiIsImV4cGlyeSI6MTUwNDI1NTQyMX0="> 
 
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
         <script src="bin/dap.bundle.js"></script>
@@ -15,12 +15,6 @@
         <link href="lib/flat-ui/dist/css/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="lib/flat-ui/dist/css/flat-ui.min.css" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
-
-        <script>
-        $(function() {
-            // $("select").select2({dropdownCssClass: 'dropdown-inverse'});
-        });
-        </script>
 
         <style type="text/css">
             body {
@@ -36,6 +30,10 @@
 
             .demo_head {
                 margin-top: 20px;
+            }
+
+            .letter-ol {
+                list-style-type: lower-alpha;
             }
         </style>
     </head>
@@ -95,8 +93,11 @@
                                 Flash a binary:
                             </p>
                             <p>
-                                <button id='flash' class="btn btn-danger when-connected" disabled>Flash</button>
-                                <button id='flash-erase' class="btn btn-warning when-connected" disabled>Erase</button>
+                                <div class="btn-group">
+                                    <button id='flash-init' class="btn btn-inverse when-connected" disabled>Init</button>
+                                    <button id='flash-erase' class="btn btn-warning when-connected" disabled>Erase</button>
+                                    <button id='flash' class="btn btn-danger when-connected" disabled>Flash</button>
+                                </div>
                             </p>
                         </li>
 
