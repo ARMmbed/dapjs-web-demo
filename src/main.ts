@@ -1,5 +1,5 @@
-import {CoreNames, CortexM, CortexReg, Device, ISANames} from "dapjs";
-import {FlashAlgos, FlashTarget, MbedTarget} from "dapjs-targets";
+import {CoreNames, CortexM, CortexReg, DAP, ISANames} from "dapjs";
+import {FlashTarget, FlashTargets} from "dapjs";
 import HID from "webhid";
 
 import {PlatformSelector} from "./device_selector";
@@ -31,18 +31,17 @@ class DAPDemo {
     private readonly selector: PlatformSelector;
     private device: USBDevice;
     private hid: HID;
-    private dapDevice: Device;
+    private dapDevice: DAP;
     private deviceCode: string;
 
     private readonly chooseButton: HTMLButtonElement;
     private readonly connectButton: HTMLButtonElement;
-    private readonly flashButton: HTMLButtonElement;
-    private readonly eraseButton: HTMLButtonElement;
+    private readonly flashRedButton: HTMLButtonElement;
+    private readonly flashGreenButton: HTMLButtonElement;
     private readonly printRegistersButton: HTMLButtonElement;
     private readonly stepButton: HTMLButtonElement;
     private readonly haltButton: HTMLButtonElement;
     private readonly resumeButton: HTMLButtonElement;
-    private readonly initButton: HTMLButtonElement;
 
     private readonly logger: HTMLLogger;
 
@@ -51,9 +50,8 @@ class DAPDemo {
 
         this.chooseButton = document.getElementById("choose") as HTMLButtonElement;
         this.connectButton = document.getElementById("connect") as HTMLButtonElement;
-        this.flashButton = document.getElementById("flash") as HTMLButtonElement;
-        this.initButton = document.getElementById("flash-init") as HTMLButtonElement;
-        this.eraseButton = document.getElementById("flash-erase") as HTMLButtonElement;
+        this.flashRedButton = document.getElementById("flash-red") as HTMLButtonElement;
+        this.flashGreenButton = document.getElementById("flash-green") as HTMLButtonElement;
         this.printRegistersButton = document.getElementById("registers") as HTMLButtonElement;
         this.stepButton = document.getElementById("step-instruction") as HTMLButtonElement;
         this.haltButton = document.getElementById("halt") as HTMLButtonElement;
@@ -61,13 +59,18 @@ class DAPDemo {
 
         this.chooseButton.onclick = this.choose;
         this.connectButton.onclick = this.connect;
-        this.flashButton.onclick = this.flash;
-        this.eraseButton.onclick = this.erase;
         this.printRegistersButton.onclick = this.printRegisters;
         this.stepButton.onclick = this.step;
         this.haltButton.onclick = this.halt;
         this.resumeButton.onclick = this.resume;
-        this.initButton.onclick = this.flashInit;
+
+        this.flashRedButton.onclick = async () => {
+            await this.flash("blinky-red.bin");
+        }
+
+        this.flashGreenButton.onclick = async () => {
+            await this.flash("blinky-green.bin");
+        }
 
         this.logger = logger;
     }
@@ -89,13 +92,6 @@ class DAPDemo {
         this.connectButton.disabled = false;
     }
 
-    private flashInit = async () => {
-        this.log("Running FlashInit.");
-
-        await this.target.halt();
-        await this.target.flashInit();
-    }
-
     /**
      * Define `connect` as ES6 arrow function so that `this` is bound to the instance of DAPDemo, rather than bound to
      * the source of the click event.
@@ -110,8 +106,8 @@ class DAPDemo {
 
         this.log("Device opened.");
 
-        this.dapDevice = new Device(this.hid);
-        this.target = new MbedTarget(this.dapDevice, FlashAlgos.get(this.deviceCode));
+        this.dapDevice = new DAP(this.hid);
+        this.target = new FlashTarget(this.dapDevice, FlashTargets.get(this.deviceCode));
 
         this.log("Initialising device.");
 
@@ -136,29 +132,31 @@ class DAPDemo {
         }
     }
 
-    private flash = async () => {
-        this.clearLog();
-
-        this.log("Preparing to flash device.");
+    private flash = async (f: string) => {
+        // Erase flash
         await this.target.halt();
-        // await this.target.init();
         await this.target.flashInit();
-
-        this.log("Halted and initialised device.");
+        await this.target.eraseChip();
 
         const xhr = new XMLHttpRequest();
-        xhr.open("GET", "blinky-red.bin", true);
+        xhr.open("GET", f, true);
         xhr.responseType = "arraybuffer";
 
         xhr.onload = async (e: any) => {
-          const array = Array.from(new Uint32Array(xhr.response));
+            const array = new Uint32Array(xhr.response);
 
-          this.log(`Binary file ${array.length} words long`);
+            this.log(`Binary file ${array.length} words long`);
 
-          // Push binary to board
-          await this.target.flash(array);
+            // Push binary to board
+            await this.target.flash(array);
 
-          this.log(`Successfully flashed binary.`);
+            this.log(`Successfully flashed binary.`);
+            this.log("Done.");
+
+            await this.target.reset();
+
+            // make sure we don't have any issues flashing twice in the same session.
+            this.target.flashUnInit();
         };
 
         xhr.send();
@@ -172,20 +170,6 @@ class DAPDemo {
     private resume = async () => {
         await this.target.resume();
         this.log("Resumed.");
-    }
-
-    private erase = async () => {
-        // Erase flash
-        this.clearLog();
-        await this.target.halt();
-
-        this.log("Running flashInit");
-
-        const r0 = await this.target.flashInit();
-        this.log(`flashInit returned 0x${r0.toString(16)}`);
-
-        // const r1 = await this.target.eraseChip();
-        // this.log(`flashErase returned 0x${r1.toString(16)}`);
     }
 
     private log(s: string) {
