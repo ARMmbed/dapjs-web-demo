@@ -681,42 +681,6 @@ exports.CortexM = CortexM;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var cortex_m_1 = __webpack_require__(1);
 exports.CortexM = cortex_m_1.CortexM;
@@ -727,16 +691,6 @@ exports.DAP = dap_1.DAP;
 var FlashTarget_1 = __webpack_require__(9);
 exports.FlashTargets = FlashTarget_1.FlashTargets;
 exports.FlashTarget = FlashTarget_1.FlashTarget;
-var cortex_m_2 = __webpack_require__(1);
-var dap_2 = __webpack_require__(3);
-exports.discoverTarget = function (hid) { return __awaiter(_this, void 0, void 0, function () {
-    var dap, core;
-    return __generator(this, function (_a) {
-        dap = new dap_2.DAP(hid);
-        core = new cortex_m_2.CortexM(dap);
-        return [2 /*return*/];
-    });
-}); };
 //# sourceMappingURL=main.js.map
 
 /***/ }),
@@ -1165,10 +1119,12 @@ var DAPDemo = (function () {
                         return [4 /*yield*/, this.target.eraseChip()];
                     case 3:
                         _a.sent();
+                        this.flashProgressBarContainer.style.display = "block";
                         xhr = new XMLHttpRequest();
                         xhr.open("GET", f, true);
                         xhr.responseType = "arraybuffer";
                         xhr.onload = function (e) { return __awaiter(_this, void 0, void 0, function () {
+                            var _this = this;
                             var array;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
@@ -1176,7 +1132,9 @@ var DAPDemo = (function () {
                                         array = new Uint32Array(xhr.response);
                                         this.log("Binary file " + array.length + " words long");
                                         // Push binary to board
-                                        return [4 /*yield*/, this.target.flash(array)];
+                                        return [4 /*yield*/, this.target.flash(array, null, function (progress) {
+                                                _this.flashProgressBar.style.width = progress * 100 + "%";
+                                            })];
                                     case 1:
                                         // Push binary to board
                                         _a.sent();
@@ -1261,6 +1219,8 @@ var DAPDemo = (function () {
         this.stepButton = document.getElementById("step-instruction");
         this.haltButton = document.getElementById("halt");
         this.resumeButton = document.getElementById("resume");
+        this.flashProgressBarContainer = document.getElementById("progress-container");
+        this.flashProgressBar = document.getElementById("flash-progress");
         this.chooseButton.onclick = this.choose;
         this.connectButton.onclick = this.connect;
         this.printRegistersButton.onclick = this.printRegisters;
@@ -1270,7 +1230,10 @@ var DAPDemo = (function () {
         this.flashRedButton.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.flash("blinky-red.bin")];
+                    case 0:
+                        this.flashProgressBar.style.width = "0%";
+                        this.flashProgressBar.className = "progress-bar progress-bar-danger";
+                        return [4 /*yield*/, this.flash("blinky-red.bin")];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -1280,7 +1243,10 @@ var DAPDemo = (function () {
         this.flashGreenButton.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.flash("blinky-green.bin")];
+                    case 0:
+                        this.flashProgressBar.style.width = "0%";
+                        this.flashProgressBar.className = "progress-bar progress-bar-success";
+                        return [4 /*yield*/, this.flash("blinky-green.bin")];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -2267,6 +2233,7 @@ var CMSISDAP = (function () {
                 switch (_a.label) {
                     case 0:
                         array = Uint8Array.from(command);
+                        console.log(array);
                         return [4 /*yield*/, this.hid.write(array.buffer)];
                     case 1:
                         _a.sent();
@@ -2381,13 +2348,13 @@ var FlashTarget = (function (_super) {
                         return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.platform.flashAlgo.staticBase)];
                     case 3:
                         _a.sent();
-                        // upload analyzer
-                        return [4 /*yield*/, this.memory.writeBlock(0x1ffff000, analyzer)];
+                        if (!this.platform.flashAlgo.analyzerSupported) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.memory.writeBlock(this.platform.flashAlgo.analyzerAddress, analyzer)];
                     case 4:
-                        // upload analyzer
                         _a.sent();
-                        return [4 /*yield*/, this.runCode(this.platform.flashAlgo.instructions, this.platform.flashAlgo.loadAddress, this.platform.flashAlgo.pcInit, this.platform.flashAlgo.loadAddress + 1, this.platform.flashAlgo.stackPointer, true, 0, 0, 0, 0)];
-                    case 5:
+                        _a.label = 5;
+                    case 5: return [4 /*yield*/, this.runCode(this.platform.flashAlgo.instructions, this.platform.flashAlgo.loadAddress, this.platform.flashAlgo.pcInit, this.platform.flashAlgo.loadAddress + 1, this.platform.flashAlgo.stackPointer, true, 0, 0, 0, 0)];
+                    case 6:
                         result = _a.sent();
                         this.inited = true;
                         return [2 /*return*/, result];
@@ -2423,9 +2390,9 @@ var FlashTarget = (function (_super) {
      *
      * @param data Array of 32-bit integers to write to flash.
      */
-    FlashTarget.prototype.flash = function (data) {
+    FlashTarget.prototype.flash = function (data, address, progressCb) {
         return __awaiter(this, void 0, void 0, function () {
-            var pageSizeWords, bufferAddress, ptr, wordPtr, pageData, flashAddress;
+            var pageSizeWords, bufferAddress, flashStart, ptr, wordPtr, pageData, flashAddress;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -2439,13 +2406,14 @@ var FlashTarget = (function (_super) {
                         _a.sent();
                         pageSizeWords = this.platform.flashAlgo.pageSize / 4;
                         bufferAddress = this.platform.flashAlgo.pageBuffers[0];
+                        flashStart = address || this.platform.flashAlgo.flashStart;
                         ptr = 0;
                         _a.label = 4;
                     case 4:
                         if (!(ptr < data.byteLength)) return [3 /*break*/, 7];
                         wordPtr = ptr / 4;
                         pageData = data.slice(wordPtr, wordPtr + pageSizeWords);
-                        flashAddress = this.platform.flashAlgo.flashStart + ptr;
+                        flashAddress = flashStart + ptr;
                         this.platform.overrideSecurityBits(flashAddress, pageData);
                         return [4 /*yield*/, this.memory.writeBlock(bufferAddress, pageData)];
                     case 5:
@@ -2459,10 +2427,61 @@ var FlashTarget = (function (_super) {
                             flashAddress, this.platform.flashAlgo.pageSize, bufferAddress)];
                     case 6:
                         _a.sent();
-                        console.log("written 0x" + pageData.byteLength.toString(16) + " bytes to 0x" + flashAddress.toString(16));
+                        if (progressCb) {
+                            progressCb(ptr / data.byteLength);
+                        }
                         ptr += pageData.byteLength;
                         return [3 /*break*/, 4];
-                    case 7: return [2 /*return*/];
+                    case 7:
+                        if (progressCb) {
+                            progressCb(1.0);
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    FlashTarget.prototype.program = function (program, progressCb) {
+        return __awaiter(this, void 0, void 0, function () {
+            var totalBytes, cumulativeBytes, _loop_1, this_1, _i, _a, section;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        totalBytes = program.totalByteLength();
+                        cumulativeBytes = 0;
+                        _loop_1 = function (section) {
+                            var sectionBytes;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        sectionBytes = 0;
+                                        return [4 /*yield*/, this_1.flash(section.data, section.address, function (progress) {
+                                                sectionBytes += section.data.length * progress;
+                                                progressCb((cumulativeBytes + sectionBytes) / totalBytes);
+                                            })];
+                                    case 1:
+                                        _a.sent();
+                                        cumulativeBytes += sectionBytes;
+                                        return [2 /*return*/];
+                                }
+                            });
+                        };
+                        this_1 = this;
+                        _i = 0, _a = program.sections;
+                        _b.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        section = _a[_i];
+                        return [5 /*yield**/, _loop_1(section)];
+                    case 2:
+                        _b.sent();
+                        _b.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4:
+                        progressCb(1.0);
+                        return [2 /*return*/];
                 }
             });
         });
@@ -2486,6 +2505,8 @@ exports.FlashTargets.set("9900", new NRF51_1.NRF51());
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var K64F_FLASH_ALGO = {
+    analyzerAddress: 0x1ffff000,
+    analyzerSupported: true,
     flashSize: 0x100000,
     flashStart: 0x0,
     // Flash algorithm as a hex string
@@ -2544,9 +2565,6 @@ var K64F = (function () {
     function K64F() {
         this.flashAlgo = K64F_FLASH_ALGO;
     }
-    K64F.prototype.init = function () {
-        // do some stuff with mdm-ap to make sure debugging is all enabled etc.
-    };
     K64F.prototype.overrideSecurityBits = function (address, data) {
         var u8data = new Uint8Array(data.buffer);
         // Kinetis security values and addresses
@@ -2564,7 +2582,6 @@ var K64F = (function () {
         var FDPROT_ADDR = 0x40f;
         var FDPROT_VAL = 0xFF;
         if (address <= SECURITY_START && address + u8data.byteLength > SECURITY_START + SECURITY_SIZE) {
-            console.log(u8data.slice(0x400, 0x40f));
             for (var i = FPROT_ADDR; i < FPROT_ADDR_END; i++) {
                 if (u8data[i - address] !== 0xff) {
                     u8data[i - address] = 0xff;

@@ -43,6 +43,9 @@ class DAPDemo {
     private readonly haltButton: HTMLButtonElement;
     private readonly resumeButton: HTMLButtonElement;
 
+    private readonly flashProgressBarContainer: HTMLDivElement;
+    private readonly flashProgressBar: HTMLDivElement;
+
     private readonly logger: HTMLLogger;
 
     constructor(logger: HTMLLogger) {
@@ -57,6 +60,9 @@ class DAPDemo {
         this.haltButton = document.getElementById("halt") as HTMLButtonElement;
         this.resumeButton = document.getElementById("resume") as HTMLButtonElement;
 
+        this.flashProgressBarContainer = document.getElementById("progress-container") as HTMLDivElement;
+        this.flashProgressBar = document.getElementById("flash-progress") as HTMLDivElement;
+
         this.chooseButton.onclick = this.choose;
         this.connectButton.onclick = this.connect;
         this.printRegistersButton.onclick = this.printRegisters;
@@ -65,12 +71,16 @@ class DAPDemo {
         this.resumeButton.onclick = this.resume;
 
         this.flashRedButton.onclick = async () => {
+            this.flashProgressBar.style.width = "0%";
+            this.flashProgressBar.className = "progress-bar progress-bar-danger";
             await this.flash("blinky-red.bin");
-        }
+        };
 
         this.flashGreenButton.onclick = async () => {
+            this.flashProgressBar.style.width = "0%";
+            this.flashProgressBar.className = "progress-bar progress-bar-success";
             await this.flash("blinky-green.bin");
-        }
+        };
 
         this.logger = logger;
     }
@@ -138,6 +148,8 @@ class DAPDemo {
         await this.target.flashInit();
         await this.target.eraseChip();
 
+        this.flashProgressBarContainer.style.display = "block";
+
         const xhr = new XMLHttpRequest();
         xhr.open("GET", f, true);
         xhr.responseType = "arraybuffer";
@@ -148,7 +160,9 @@ class DAPDemo {
             this.log(`Binary file ${array.length} words long`);
 
             // Push binary to board
-            await this.target.flash(array);
+            await this.target.flash(array, null, (progress: number) => {
+                this.flashProgressBar.style.width = `${progress * 100}%`;
+            });
 
             this.log(`Successfully flashed binary.`);
             this.log("Done.");
