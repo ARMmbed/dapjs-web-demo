@@ -1,5 +1,5 @@
 import {CoreNames, CortexM, CortexReg, DAP, ISANames} from "dapjs";
-import {FlashTarget, FlashTargets} from "dapjs";
+import {FlashTarget, FlashTargets, FlashProgram} from "dapjs";
 import HID from "webhid";
 
 import {PlatformSelector} from "./device_selector";
@@ -73,13 +73,13 @@ class DAPDemo {
         this.flashRedButton.onclick = async () => {
             this.flashProgressBar.style.width = "0%";
             this.flashProgressBar.className = "progress-bar progress-bar-danger";
-            await this.flash("blinky-red.bin");
+            await this.flash("blinky-red");
         };
 
         this.flashGreenButton.onclick = async () => {
             this.flashProgressBar.style.width = "0%";
             this.flashProgressBar.className = "progress-bar progress-bar-success";
-            await this.flash("blinky-green.bin");
+            await this.flash("blinky-green");
         };
 
         this.logger = logger;
@@ -145,32 +145,56 @@ class DAPDemo {
     private flash = async (f: string) => {
         // Erase flash
         await this.target.halt();
-        await this.target.flashInit();
-        await this.target.eraseChip();
 
         this.flashProgressBarContainer.style.display = "block";
 
+        console.log(f);
+
         const xhr = new XMLHttpRequest();
+        if (this.deviceCode === "9900") {
+            f += ".hex";
+            xhr.responseType = "text";
+        } else {
+            f += ".bin";
+            xhr.responseType = "arraybuffer";
+        }
         xhr.open("GET", f, true);
-        xhr.responseType = "arraybuffer";
 
         xhr.onload = async (e: any) => {
-            const array = new Uint32Array(xhr.response);
+            if (this.deviceCode === "9900") {
+                console.log("Flashing a micro:bit hex");
 
-            this.log(`Binary file ${array.length} words long`);
+                const program = FlashProgram.fromIntelHex(xhr.responseText);
+                await this.target.program(program, (progress: number) => {
+                    // console.log(progress);
+                    this.flashProgressBar.style.width = `${progress * 100}%`;
+                });
 
-            // Push binary to board
-            await this.target.flash(array, null, (progress: number) => {
-                this.flashProgressBar.style.width = `${progress * 100}%`;
-            });
+                this.log(`Successfully flashed binary.`);
+                this.log("Done.");
 
-            this.log(`Successfully flashed binary.`);
-            this.log("Done.");
+                await this.target.reset();
+            } else {
+                console.log("Flashing a K64F binary");
 
-            await this.target.reset();
+                const array = new Uint32Array(xhr.response);
+                const program = FlashProgram.fromBinary(0, array);
 
-            // make sure we don't have any issues flashing twice in the same session.
-            this.target.flashUnInit();
+                this.log(`Binary file ${array.length} words long`);
+
+                // Push binary to board
+                await this.target.program(program, (progress: number) => {
+                    this.flashProgressBar.style.width = `${progress * 100}%`;
+                });
+
+                this.log(`Successfully flashed binary.`);
+                this.log("Done.");
+
+                await this.target.reset();
+
+                // make sure we don't have any issues flashing twice in the same session.
+                this.target.flashUnInit();
+            }
         };
 
         xhr.send();
