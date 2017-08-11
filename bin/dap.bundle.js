@@ -1432,10 +1432,10 @@ class FlashTarget extends cortex_m_1.CortexM {
         const startTime = Date.now();
         for (const section of program.sections) {
             await this.flash(section.data, section.address, (progress) => {
-                progressCb((cumulativeBytes + progress * section.data.byteLength) / totalBytes);
+                const sectionBytes = section.data.byteLength * progress;
+                progressCb((cumulativeBytes + sectionBytes) / totalBytes);
             });
             cumulativeBytes += section.data.byteLength;
-            progressCb(cumulativeBytes / totalBytes);
         }
         const endTime = Date.now();
         const elapsedTime = endTime - startTime;
