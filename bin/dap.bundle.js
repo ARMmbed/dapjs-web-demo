@@ -69,83 +69,43 @@
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.readUInt32LE = function (b, idx) {
+exports.readUInt32LE = (b, idx) => {
     return (b[idx] |
         (b[idx + 1] << 8) |
         (b[idx + 2] << 16) |
         (b[idx + 3] << 24)) >>> 0;
 };
-exports.bufferConcat = function (bufs) {
-    var len = 0;
-    for (var _i = 0, bufs_1 = bufs; _i < bufs_1.length; _i++) {
-        var b = bufs_1[_i];
+exports.bufferConcat = (bufs) => {
+    let len = 0;
+    for (const b of bufs) {
         len += b.length;
     }
-    var r = new Uint8Array(len);
+    const r = new Uint8Array(len);
     len = 0;
-    for (var _a = 0, bufs_2 = bufs; _a < bufs_2.length; _a++) {
-        var b = bufs_2[_a];
+    for (const b of bufs) {
         r.set(b, len);
         len += b.length;
     }
     return r;
 };
-exports.delay = function (t) { return __awaiter(_this, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        return [2 /*return*/, new Promise(function (resolve) {
-                setTimeout(resolve, t);
-            })];
+exports.delay = async (t) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, t);
     });
-}); };
-exports.addInt32 = function (arr, val) {
+};
+exports.addInt32 = (arr, val) => {
     if (!arr) {
         arr = [];
     }
     arr.push(val & 0xff, (val >> 8) & 0xff, (val >> 16) & 0xff, (val >> 24) & 0xff);
     return arr;
 };
-exports.hex = function (v) {
+exports.hex = (v) => {
     return "0x" + v.toString(16);
 };
-exports.rid = function (v) {
-    var m = [
+exports.rid = (v) => {
+    const m = [
         "DP_0x0",
         "DP_0x4",
         "DP_0x8",
@@ -157,34 +117,33 @@ exports.rid = function (v) {
     ];
     return m[v] || "?";
 };
-exports.bank = function (addr) {
-    var APBANKSEL = 0x000000f0;
+exports.bank = (addr) => {
+    const APBANKSEL = 0x000000f0;
     return (addr & APBANKSEL) | (addr & 0xff000000);
 };
-exports.apReg = function (r, mode) {
-    var v = r | mode | 1 /* AP_ACC */;
+exports.apReg = (r, mode) => {
+    const v = r | mode | 1 /* AP_ACC */;
     return (4 + ((v & 0x0c) >> 2));
 };
-exports.bufToUint32Array = function (buf) {
+exports.bufToUint32Array = (buf) => {
     exports.assert((buf.length & 3) === 0);
-    var r = [];
+    const r = [];
     if (!buf.length) {
         return r;
     }
     r[buf.length / 4 - 1] = 0;
-    for (var i = 0; i < r.length; ++i) {
+    for (let i = 0; i < r.length; ++i) {
         r[i] = exports.readUInt32LE(buf, i << 2);
     }
     return r;
 };
-exports.assert = function (cond) {
+exports.assert = (cond) => {
     if (!cond) {
         throw new Error("assertion failed");
     }
 };
-exports.regRequest = function (regId, isWrite) {
-    if (isWrite === void 0) { isWrite = false; }
-    var request = !isWrite ? 2 /* READ */ : 0 /* WRITE */;
+exports.regRequest = (regId, isWrite = false) => {
+    let request = !isWrite ? 2 /* READ */ : 0 /* WRITE */;
     if (regId < 4) {
         request |= 0 /* DP_ACC */;
     }
@@ -194,13 +153,20 @@ exports.regRequest = function (regId, isWrite) {
     request |= (regId & 3) << 2;
     return request;
 };
-exports.hexBytes = function (bytes) {
-    var chk = 0;
-    var r = ":";
-    bytes.forEach(function (b) { return chk += b; });
+exports.hexBytes = (bytes) => {
+    let chk = 0;
+    let r = ":";
+    bytes.forEach((b) => chk += b);
     bytes.push((-chk) & 0xff);
-    bytes.forEach(function (b) { return r += ("0" + b.toString(16)).slice(-2); });
+    bytes.forEach((b) => r += ("0" + b.toString(16)).slice(-2));
     return r.toUpperCase();
+};
+exports.hex2bin = (hexstr) => {
+    const array = new Uint8Array(hexstr.length / 2);
+    for (let i = 0; i < hexstr.length / 2; i++) {
+        array[i] = parseInt(hexstr.substr(2 * i, 2), 16);
+    }
+    return array;
 };
 //# sourceMappingURL=util.js.map
 
@@ -210,46 +176,31 @@ exports.hexBytes = function (bytes) {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var debug_1 = __webpack_require__(5);
-var util_1 = __webpack_require__(0);
-var memory_1 = __webpack_require__(7);
-var DEFAULT_RUNCODE_TIMEOUT = 10000 /* ms */;
+var cortex_m_1 = __webpack_require__(2);
+exports.CortexM = cortex_m_1.CortexM;
+exports.CoreNames = cortex_m_1.CoreNames;
+exports.ISANames = cortex_m_1.ISANames;
+var dap_1 = __webpack_require__(3);
+exports.DAP = dap_1.DAP;
+var FlashTarget_1 = __webpack_require__(9);
+exports.FlashTargets = FlashTarget_1.FlashTargets;
+exports.FlashTarget = FlashTarget_1.FlashTarget;
+var FlashProgram_1 = __webpack_require__(12);
+exports.FlashProgram = FlashProgram_1.FlashProgram;
+//# sourceMappingURL=main.js.map
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const debug_1 = __webpack_require__(5);
+const util_1 = __webpack_require__(0);
+const memory_1 = __webpack_require__(7);
+const DEFAULT_RUNCODE_TIMEOUT = 10000 /* ms */;
 exports.CPUID_IMPLEMENTER_MASK = 0xff000000;
 exports.CPUID_IMPLEMENTER_POS = 24;
 exports.CPUID_VARIANT_MASK = 0x00f00000;
@@ -269,13 +220,34 @@ exports.CoreNames.set(3105 /* CortexM1 */, "Cortex-M1");
 exports.CoreNames.set(3107 /* CortexM3 */, "Cortex-M3");
 exports.CoreNames.set(3108 /* CortexM4 */, "Cortex-M4");
 exports.CoreNames.set(3168 /* CortexM0p */, "Cortex-M0+");
+class PreparedCortexMCommand {
+    constructor(dap) {
+        this.cmd = new memory_1.PreparedMemoryCommand(dap);
+    }
+    writeCoreRegister(no, val) {
+        this.cmd.write32(3758157304 /* DCRDR */, val);
+        this.cmd.write32(3758157300 /* DCRSR */, no | 65536 /* DCRSR_REGWnR */);
+    }
+    halt() {
+        this.cmd.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */ | 2 /* C_HALT */);
+    }
+    resume() {
+        this.cmd.write32(3758157104 /* DFSR */, 4 /* DFSR_DWTTRAP */ | 2 /* DFSR_BKPT */ | 1 /* DFSR_HALTED */);
+    }
+    async go() {
+        // this.cmd.read32(CortexSpecialReg.DHCSR);
+        const v = await this.cmd.go();
+        // assert(v & CortexSpecialReg.S_REGRDY);
+    }
+}
+exports.PreparedCortexMCommand = PreparedCortexMCommand;
 /**
  * Abstraction of an ARM Cortex M CPU from a programmer's perspective. Provides functionality
  * for setting breakpoints, reading general-purpose registers, reading from memory and stopping
  * and starting the CPU.
  */
-var CortexM = (function () {
-    function CortexM(device) {
+class CortexM {
+    constructor(device) {
         this.dev = device;
         this.memory = new memory_1.Memory(device);
         this.debug = new debug_1.Debug(this);
@@ -283,259 +255,140 @@ var CortexM = (function () {
     /**
      * Initialise the debug access port on the device, and read the device type.
      */
-    CortexM.prototype.init = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dev.init()];
-                    case 1:
-                        _a.sent();
-                        // FIXME: don't run this if security is enabled on the K64F
-                        return [4 /*yield*/, this.debug.setupFpb()];
-                    case 2:
-                        // FIXME: don't run this if security is enabled on the K64F
-                        _a.sent();
-                        return [4 /*yield*/, this.readCoreType()];
-                    case 3:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async init() {
+        await this.dev.init();
+        // FIXME: don't run this if security is enabled on the K64F
+        await this.debug.setupFpb();
+        await this.readCoreType();
+    }
     /**
      * Read the current state of the CPU.
      *
      * @returns A member of the `CoreState` enum corresponding to the current status of the CPU.
      */
-    CortexM.prototype.getState = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var dhcsr, newDHCSR;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.memory.read32(3758157296 /* DHCSR */)];
-                    case 1:
-                        dhcsr = _a.sent();
-                        if (!(dhcsr & 33554432 /* S_RESET_ST */)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.memory.read32(3758157296 /* DHCSR */)];
-                    case 2:
-                        newDHCSR = _a.sent();
-                        if (newDHCSR & 33554432 /* S_RESET_ST */ && !(newDHCSR & 16777216 /* S_RETIRE_ST */)) {
-                            return [2 /*return*/, 0 /* TARGET_RESET */];
-                        }
-                        _a.label = 3;
-                    case 3:
-                        if (dhcsr & 524288 /* S_LOCKUP */) {
-                            return [2 /*return*/, 1 /* TARGET_LOCKUP */];
-                        }
-                        else if (dhcsr & 262144 /* S_SLEEP */) {
-                            return [2 /*return*/, 2 /* TARGET_SLEEPING */];
-                        }
-                        else if (dhcsr & 131072 /* S_HALT */) {
-                            return [2 /*return*/, 3 /* TARGET_HALTED */];
-                        }
-                        else {
-                            return [2 /*return*/, 4 /* TARGET_RUNNING */];
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async getState() {
+        const dhcsr = await this.memory.read32(3758157296 /* DHCSR */);
+        if (dhcsr & 33554432 /* S_RESET_ST */) {
+            const newDHCSR = await this.memory.read32(3758157296 /* DHCSR */);
+            if (newDHCSR & 33554432 /* S_RESET_ST */ && !(newDHCSR & 16777216 /* S_RETIRE_ST */)) {
+                return 0 /* TARGET_RESET */;
+            }
+        }
+        if (dhcsr & 524288 /* S_LOCKUP */) {
+            return 1 /* TARGET_LOCKUP */;
+        }
+        else if (dhcsr & 262144 /* S_SLEEP */) {
+            return 2 /* TARGET_SLEEPING */;
+        }
+        else if (dhcsr & 131072 /* S_HALT */) {
+            return 3 /* TARGET_HALTED */;
+        }
+        else {
+            return 4 /* TARGET_RUNNING */;
+        }
+    }
     /**
      * Read the CPUID register from the CPU, and interpret its meaning in terms of implementer,
      * architecture and core type.
      */
-    CortexM.prototype.readCoreType = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var cpuid, implementer, arch, coreType;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.memory.read32(3758157056 /* CPUID */)];
-                    case 1:
-                        cpuid = _a.sent();
-                        implementer = ((cpuid & exports.CPUID_IMPLEMENTER_MASK) >> exports.CPUID_IMPLEMENTER_POS);
-                        arch = ((cpuid & exports.CPUID_ARCHITECTURE_MASK) >> exports.CPUID_ARCHITECTURE_POS);
-                        coreType = ((cpuid & exports.CPUID_PARTNO_MASK) >> exports.CPUID_PARTNO_POS);
-                        console.debug("Found an ARM " + exports.CoreNames.get(coreType));
-                        return [2 /*return*/, [implementer, arch, coreType]];
-                }
-            });
-        });
-    };
+    async readCoreType() {
+        const cpuid = await this.memory.read32(3758157056 /* CPUID */);
+        const implementer = ((cpuid & exports.CPUID_IMPLEMENTER_MASK) >> exports.CPUID_IMPLEMENTER_POS);
+        const arch = ((cpuid & exports.CPUID_ARCHITECTURE_MASK) >> exports.CPUID_ARCHITECTURE_POS);
+        const coreType = ((cpuid & exports.CPUID_PARTNO_MASK) >> exports.CPUID_PARTNO_POS);
+        console.debug(`Found an ARM ${exports.CoreNames.get(coreType)}`);
+        return [implementer, arch, coreType];
+    }
     /**
      * Read a core register from the CPU (e.g. r0...r15, pc, sp, lr, s0...)
      *
      * @param no Member of the `CortexReg` enum - an ARM Cortex CPU general-purpose register.
      */
-    CortexM.prototype.readCoreRegister = function (no) {
-        return __awaiter(this, void 0, void 0, function () {
-            var v;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.memory.write32(3758157300 /* DCRSR */, no)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.memory.read32(3758157296 /* DHCSR */)];
-                    case 2:
-                        v = _a.sent();
-                        util_1.assert(v & 65536 /* S_REGRDY */);
-                        return [4 /*yield*/, this.memory.read32(3758157304 /* DCRDR */)];
-                    case 3: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
+    async readCoreRegister(no) {
+        await this.memory.write32(3758157300 /* DCRSR */, no);
+        const v = await this.memory.read32(3758157296 /* DHCSR */);
+        util_1.assert(v & 65536 /* S_REGRDY */);
+        return await this.memory.read32(3758157304 /* DCRDR */);
+    }
     /**
      * Write a 32-bit word to the specified CPU general-purpose register.
      *
      * @param no Member of the `CortexReg` enum - an ARM Cortex CPU general-purpose register.
      * @param val Value to be written.
      */
-    CortexM.prototype.writeCoreRegister = function (no, val) {
-        return __awaiter(this, void 0, void 0, function () {
-            var v;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.memory.write32(3758157304 /* DCRDR */, val)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.memory.write32(3758157300 /* DCRSR */, no | 65536 /* DCRSR_REGWnR */)];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.memory.read32(3758157296 /* DHCSR */)];
-                    case 3:
-                        v = _a.sent();
-                        util_1.assert(v & 65536 /* S_REGRDY */);
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async writeCoreRegister(no, val) {
+        const prep = new memory_1.PreparedMemoryCommand(this.dev);
+        prep.write32(3758157304 /* DCRDR */, val);
+        prep.write32(3758157300 /* DCRSR */, no | 65536 /* DCRSR_REGWnR */);
+        prep.read32(3758157296 /* DHCSR */);
+        const v = (await prep.go())[0];
+        util_1.assert(v & 65536 /* S_REGRDY */);
+    }
     /**
      * Halt the CPU core.
      */
-    CortexM.prototype.halt = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */ | 2 /* C_HALT */)];
-            });
-        });
-    };
+    async halt() {
+        return this.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */ | 2 /* C_HALT */);
+    }
     /**
      * Resume the CPU core.
      */
-    CortexM.prototype.resume = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.isHalted()];
-                    case 1:
-                        if (!_a.sent()) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.memory.write32(3758157104 /* DFSR */, 4 /* DFSR_DWTTRAP */ | 2 /* DFSR_BKPT */ | 1 /* DFSR_HALTED */)];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.debug.enable()];
-                    case 3:
-                        _a.sent();
-                        _a.label = 4;
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async resume() {
+        if (await this.isHalted()) {
+            await this.memory.write32(3758157104 /* DFSR */, 4 /* DFSR_DWTTRAP */ | 2 /* DFSR_BKPT */ | 1 /* DFSR_HALTED */);
+            await this.debug.enable();
+        }
+    }
     /**
      * Find out whether the CPU is halted.
      */
-    CortexM.prototype.isHalted = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var s;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.status()];
-                    case 1:
-                        s = _a.sent();
-                        return [2 /*return*/, s.isHalted];
-                }
-            });
-        });
-    };
+    async isHalted() {
+        const s = await this.status();
+        return s.isHalted;
+    }
     /**
      * Read the current status of the CPU.
      *
      * @returns Object containing the contents of the `DHCSR` register, the `DFSR` register, and a boolean value
      * stating the current halted state of the CPU.
      */
-    CortexM.prototype.status = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var dhcsr, dfsr;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.memory.read32(3758157296 /* DHCSR */)];
-                    case 1:
-                        dhcsr = _a.sent();
-                        return [4 /*yield*/, this.memory.read32(3758157104 /* DFSR */)];
-                    case 2:
-                        dfsr = _a.sent();
-                        return [2 /*return*/, {
-                                dfsr: dfsr,
-                                dhscr: dhcsr,
-                                isHalted: !!(dhcsr & 131072 /* S_HALT */),
-                            }];
-                }
-            });
-        });
-    };
+    async status() {
+        const prep = new memory_1.PreparedMemoryCommand(this.dev);
+        prep.read32(3758157296 /* DHCSR */);
+        prep.read32(3758157104 /* DFSR */);
+        const results = await prep.go();
+        const dhcsr = results[0];
+        const dfsr = results[1];
+        return {
+            dfsr,
+            dhscr: dhcsr,
+            isHalted: !!(dhcsr & 131072 /* S_HALT */),
+        };
+    }
     /**
      * Reset the CPU core. This currently does a software reset - it is also technically possible to perform a 'hard'
      * reset using the reset pin from the debugger.
      */
-    CortexM.prototype.reset = function (halt) {
-        if (halt === void 0) { halt = false; }
-        return __awaiter(this, void 0, void 0, function () {
-            var demcr;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!halt) return [3 /*break*/, 7];
-                        return [4 /*yield*/, this.halt()];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.memory.read32(3758157308 /* DEMCR */)];
-                    case 2:
-                        demcr = _a.sent();
-                        return [4 /*yield*/, this.memory.write32(3758157308 /* DEMCR */, demcr | 1 /* DEMCR_VC_CORERESET */)];
-                    case 3:
-                        _a.sent();
-                        return [4 /*yield*/, this.softwareReset()];
-                    case 4:
-                        _a.sent();
-                        return [4 /*yield*/, this.waitForHalt()];
-                    case 5:
-                        _a.sent();
-                        // Unset the VC_CORERESET bit
-                        return [4 /*yield*/, this.memory.write32(3758157308 /* DEMCR */, demcr)];
-                    case 6:
-                        // Unset the VC_CORERESET bit
-                        _a.sent();
-                        return [3 /*break*/, 9];
-                    case 7: return [4 /*yield*/, this.softwareReset()];
-                    case 8:
-                        _a.sent();
-                        _a.label = 9;
-                    case 9: return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async reset(halt = false) {
+        if (halt) {
+            await this.halt();
+            // VC_CORERESET causes the core to halt on reset.
+            const demcr = await this.memory.read32(3758157308 /* DEMCR */);
+            await this.memory.write32(3758157308 /* DEMCR */, demcr | 1 /* DEMCR_VC_CORERESET */);
+            await this.softwareReset();
+            await this.waitForHalt();
+            // Unset the VC_CORERESET bit
+            await this.memory.write32(3758157308 /* DEMCR */, demcr);
+        }
+        else {
+            await this.softwareReset();
+        }
+    }
     /**
      * Run specified machine code natively on the device. Assumes usual C calling conventions
      * - returns the value of r0 once the program has terminated. The program _must_ terminate
      * in order for this function to return. This can be achieved by placing a `bkpt`
      * instruction at the end of the function.
-     *
-     * **FIXME**: currently causes a hard fault when the core is resumed after successfully uploading
-     * the blob to memory and setting core registers.
      *
      * @param code array containing the machine code (32-bit words).
      * @param address memory address at which to place the code.
@@ -547,151 +400,58 @@ var CortexM = (function () {
      *
      * @returns A promise for the value of r0 on completion of the function call.
      */
-    CortexM.prototype.runCode = function (code, address, pc, lr, sp, upload) {
-        var args = [];
-        for (var _i = 6; _i < arguments.length; _i++) {
-            args[_i - 6] = arguments[_i];
+    async runCode(code, address, pc, lr, sp, upload, ...args) {
+        // await this.halt();
+        const cmd = new PreparedCortexMCommand(this.dev);
+        cmd.halt();
+        // Point the program counter to the start of the program
+        cmd.writeCoreRegister(15 /* PC */, pc);
+        cmd.writeCoreRegister(14 /* LR */, lr);
+        cmd.writeCoreRegister(13 /* SP */, sp);
+        for (let i = 0; i < args.length; i++) {
+            cmd.writeCoreRegister(i, args[i]);
         }
-        return __awaiter(this, void 0, void 0, function () {
-            var i;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // Halt the core
-                    return [4 /*yield*/, this.halt()];
-                    case 1:
-                        // Halt the core
-                        _a.sent();
-                        // Point the program counter to the start of the program
-                        return [4 /*yield*/, this.writeCoreRegister(15 /* PC */, pc)];
-                    case 2:
-                        // Point the program counter to the start of the program
-                        _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(14 /* LR */, lr)];
-                    case 3:
-                        _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(13 /* SP */, sp)];
-                    case 4:
-                        _a.sent();
-                        i = 0;
-                        _a.label = 5;
-                    case 5:
-                        if (!(i < args.length)) return [3 /*break*/, 8];
-                        return [4 /*yield*/, this.writeCoreRegister(i, args[i])];
-                    case 6:
-                        _a.sent();
-                        _a.label = 7;
-                    case 7:
-                        i++;
-                        return [3 /*break*/, 5];
-                    case 8:
-                        if (!upload) return [3 /*break*/, 10];
-                        return [4 /*yield*/, this.memory.writeBlock(address, code)];
-                    case 9:
-                        _a.sent();
-                        _a.label = 10;
-                    case 10: 
-                    // Run the program and wait for halt
-                    return [4 /*yield*/, this.resume()];
-                    case 11:
-                        // Run the program and wait for halt
-                        _a.sent();
-                        return [4 /*yield*/, this.waitForHalt(DEFAULT_RUNCODE_TIMEOUT)];
-                    case 12:
-                        _a.sent(); // timeout after 10s
-                        return [4 /*yield*/, this.readCoreRegister(0 /* R0 */)];
-                    case 13: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
+        await cmd.go();
+        // Write the program to memory at the specified address
+        if (upload) {
+            await this.memory.writeBlock(address, code);
+        }
+        // Run the program and wait for halt
+        await this.resume();
+        await this.waitForHalt(DEFAULT_RUNCODE_TIMEOUT); // timeout after 10s
+        return await this.readCoreRegister(0 /* R0 */);
+    }
     /**
      * Spin until the chip has halted.
      */
-    CortexM.prototype.waitForHalt = function (timeout) {
-        if (timeout === void 0) { timeout = 0; }
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-                        var running, _a;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
-                                case 0:
-                                    running = true;
-                                    if (timeout > 0) {
-                                        setTimeout(function () {
-                                            reject("waitForHalt timed out.");
-                                            running = false;
-                                        }, timeout);
-                                    }
-                                    _b.label = 1;
-                                case 1:
-                                    _a = running;
-                                    if (!_a) return [3 /*break*/, 3];
-                                    return [4 /*yield*/, this.isHalted()];
-                                case 2:
-                                    _a = !(_b.sent());
-                                    _b.label = 3;
-                                case 3:
-                                    if (!_a) return [3 /*break*/, 4];
-                                    return [3 /*break*/, 1];
-                                case 4:
-                                    if (running) {
-                                        resolve();
-                                    }
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); })];
-            });
+    async waitForHalt(timeout = 0) {
+        return new Promise(async (resolve, reject) => {
+            let running = true;
+            if (timeout > 0) {
+                setTimeout(() => {
+                    reject("waitForHalt timed out.");
+                    running = false;
+                }, timeout);
+            }
+            while (running && !(await this.isHalted())) {
+                /* empty */
+            }
+            if (running) {
+                resolve();
+            }
         });
-    };
-    CortexM.prototype.softwareReset = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var dhcsr;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.memory.write32(3758157068 /* NVIC_AIRCR */, 100270080 /* NVIC_AIRCR_VECTKEY */ | 4 /* NVIC_AIRCR_SYSRESETREQ */)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.memory.read32(3758157296 /* DHCSR */)];
-                    case 2:
-                        dhcsr = _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        if (!((dhcsr & 33554432 /* S_RESET_ST */) !== 0)) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.memory.read32(3758157296 /* DHCSR */)];
-                    case 4:
-                        dhcsr = _a.sent();
-                        return [3 /*break*/, 3];
-                    case 5: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return CortexM;
-}());
+    }
+    async softwareReset() {
+        await this.memory.write32(3758157068 /* NVIC_AIRCR */, 100270080 /* NVIC_AIRCR_VECTKEY */ | 4 /* NVIC_AIRCR_SYSRESETREQ */);
+        // wait for the system to come out of reset
+        let dhcsr = await this.memory.read32(3758157296 /* DHCSR */);
+        while ((dhcsr & 33554432 /* S_RESET_ST */) !== 0) {
+            dhcsr = await this.memory.read32(3758157296 /* DHCSR */);
+        }
+    }
+}
 exports.CortexM = CortexM;
 //# sourceMappingURL=cortex_m.js.map
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var cortex_m_1 = __webpack_require__(1);
-exports.CortexM = cortex_m_1.CortexM;
-exports.CoreNames = cortex_m_1.CoreNames;
-exports.ISANames = cortex_m_1.ISANames;
-var dap_1 = __webpack_require__(3);
-exports.DAP = dap_1.DAP;
-var FlashTarget_1 = __webpack_require__(9);
-exports.FlashTargets = FlashTarget_1.FlashTargets;
-exports.FlashTarget = FlashTarget_1.FlashTarget;
-//# sourceMappingURL=main.js.map
 
 /***/ }),
 /* 3 */
@@ -699,158 +459,62 @@ exports.FlashTarget = FlashTarget_1.FlashTarget;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var cmsis_dap_1 = __webpack_require__(8);
-var util_1 = __webpack_require__(0);
-var DAP = (function () {
-    function DAP(device) {
+const cmsis_dap_1 = __webpack_require__(8);
+const util_1 = __webpack_require__(0);
+class PreparedDapCommand {
+    constructor(device) {
         this.device = device;
-        this.dap = new cmsis_dap_1.CMSISDAP(device);
+        this.commands = [[0, 1]];
+        this.commandCounts = [0];
+        this.currentCommand = 0;
+        this.readCounts = [0];
     }
-    DAP.prototype.reconnect = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dap.disconnect()];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, util_1.delay(100)];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.init()];
-                    case 3:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
+    writeReg(regId, value) {
+        const request = util_1.regRequest(regId, true);
+        if (this.commands[this.currentCommand].length + 5 > 64) {
+            // start a new command
+            this.commands.push([0, 1]);
+            this.commandCounts.push(0);
+            this.readCounts.push(0);
+            this.currentCommand++;
+        }
+        this.commands[this.currentCommand].push(request);
+        util_1.addInt32(this.commands[this.currentCommand], value);
+        this.commandCounts[this.currentCommand]++;
+    }
+    readReg(regId) {
+        const request = util_1.regRequest(regId, false);
+        if (this.commands[this.currentCommand].length + 1 > 64) {
+            // start a new command
+            this.commands.push([0, 1]);
+            this.commandCounts.push(0);
+            this.readCounts.push(0);
+            this.currentCommand++;
+        }
+        this.commands[this.currentCommand].push(request);
+        this.commandCounts[this.currentCommand]++;
+        this.readCounts[this.currentCommand]++;
+    }
+    writeRegRepeat(regId, data) {
+        // fill up the rest of the command we have left
+        data.forEach((cmd) => {
+            this.writeReg(regId, cmd);
         });
-    };
-    DAP.prototype.init = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var n, m, v;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dap.connect()];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.readDp(0 /* IDCODE */)];
-                    case 2:
-                        n = _a.sent();
-                        this.idcode = n;
-                        return [4 /*yield*/, this.writeReg(0 /* DP_0x0 */, 1 << 2)];
-                    case 3:
-                        _a.sent(); // clear sticky error
-                        return [4 /*yield*/, this.writeDp(2 /* SELECT */, 0)];
-                    case 4:
-                        _a.sent();
-                        return [4 /*yield*/, this.writeDp(1 /* CTRL_STAT */, 1073741824 /* CSYSPWRUPREQ */ | 268435456 /* CDBGPWRUPREQ */)];
-                    case 5:
-                        _a.sent();
-                        m = 536870912 /* CDBGPWRUPACK */ | 2147483648 /* CSYSPWRUPACK */;
-                        return [4 /*yield*/, this.readDp(1 /* CTRL_STAT */)];
-                    case 6:
-                        v = _a.sent();
-                        _a.label = 7;
-                    case 7:
-                        if (!((v & m) !== m)) return [3 /*break*/, 9];
-                        return [4 /*yield*/, this.readDp(1 /* CTRL_STAT */)];
-                    case 8:
-                        v = _a.sent();
-                        return [3 /*break*/, 7];
-                    case 9: return [4 /*yield*/, this.writeDp(1 /* CTRL_STAT */, (1073741824 /* CSYSPWRUPREQ */ |
-                            268435456 /* CDBGPWRUPREQ */ |
-                            0 /* TRNNORMAL */ |
-                            3840 /* MASKLANE */))];
-                    case 10:
-                        _a.sent();
-                        return [4 /*yield*/, this.writeDp(2 /* SELECT */, 0)];
-                    case 11:
-                        _a.sent();
-                        return [4 /*yield*/, this.readAp(252 /* IDR */)];
-                    case 12:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    DAP.prototype.writeReg = function (regId, val) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.regOp(regId, val)];
-            });
-        });
-    };
-    DAP.prototype.readReg = function (regId) {
-        return __awaiter(this, void 0, void 0, function () {
-            var buf, v;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.regOp(regId, null)];
-                    case 1:
-                        buf = _a.sent();
-                        v = util_1.readUInt32LE(buf, 3);
-                        return [2 /*return*/, v];
-                }
-            });
-        });
-    };
-    DAP.prototype.readDp = function (addr) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.readReg(addr)];
-            });
-        });
-    };
-    DAP.prototype.readAp = function (addr) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.writeDp(2 /* SELECT */, util_1.bank(addr))];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.readReg(util_1.apReg(addr, 2 /* READ */))];
-                    case 2: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    DAP.prototype.writeDp = function (addr, data) {
+    }
+    async go() {
+        const v = [];
+        for (let i = 0; i < this.commands.length; i++) {
+            const command = this.commands[i];
+            command[1] = this.commandCounts[i];
+            const result = await this.device.dap.cmdNums(5 /* DAP_TRANSFER */, command);
+            for (let j = 0; j < this.readCounts[i]; j++) {
+                v.push(util_1.readUInt32LE(result, 3 + 4 * j));
+            }
+        }
+        return v;
+    }
+    writeDp(addr, data) {
         if (addr === 2 /* SELECT */) {
             if (data === this.dpSelect) {
                 return Promise.resolve();
@@ -858,116 +522,155 @@ var DAP = (function () {
             this.dpSelect = data;
         }
         return this.writeReg(addr, data);
-    };
-    DAP.prototype.writeAp = function (addr, data) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.writeDp(2 /* SELECT */, util_1.bank(addr))];
-                    case 1:
-                        _a.sent();
-                        if (addr === 0 /* CSW */) {
-                            if (data === this.csw) {
-                                return [2 /*return*/, Promise.resolve()];
-                            }
-                            this.csw = data;
-                        }
-                        return [4 /*yield*/, this.writeReg(util_1.apReg(addr, 0 /* WRITE */), data)];
-                    case 2:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
+    }
+    writeAp(addr, data) {
+        this.writeDp(2 /* SELECT */, util_1.bank(addr));
+        if (addr === 0 /* CSW */) {
+            if (data === this.csw) {
+                return Promise.resolve();
+            }
+            this.csw = data;
+        }
+        this.writeReg(util_1.apReg(addr, 0 /* WRITE */), data);
+    }
+    readDp(addr) {
+        return this.readReg(addr);
+    }
+    readAp(addr) {
+        this.writeDp(2 /* SELECT */, util_1.bank(addr));
+        return this.readReg(util_1.apReg(addr, 2 /* READ */));
+    }
+}
+exports.PreparedDapCommand = PreparedDapCommand;
+class DAP {
+    constructor(device) {
+        this.device = device;
+        this.dap = new cmsis_dap_1.CMSISDAP(device);
+    }
+    async reconnect() {
+        await this.dap.disconnect();
+        await util_1.delay(100);
+        await this.init();
+    }
+    async init() {
+        await this.dap.connect();
+        const n = await this.readDp(0 /* IDCODE */);
+        this.idcode = n;
+        let prep = new PreparedDapCommand(this);
+        prep.writeReg(0 /* DP_0x0 */, 1 << 2); // clear sticky error
+        prep.writeDp(2 /* SELECT */, 0);
+        prep.writeDp(1 /* CTRL_STAT */, 1073741824 /* CSYSPWRUPREQ */ | 268435456 /* CDBGPWRUPREQ */);
+        const m = 536870912 /* CDBGPWRUPACK */ | 2147483648 /* CSYSPWRUPACK */;
+        prep.readDp(1 /* CTRL_STAT */);
+        let v = (await prep.go())[0];
+        while ((v & m) !== m) {
+            v = await this.readDp(1 /* CTRL_STAT */);
+        }
+        prep = new PreparedDapCommand(this);
+        prep.writeDp(1 /* CTRL_STAT */, (1073741824 /* CSYSPWRUPREQ */ |
+            268435456 /* CDBGPWRUPREQ */ |
+            0 /* TRNNORMAL */ |
+            3840 /* MASKLANE */));
+        prep.writeDp(2 /* SELECT */, 0);
+        prep.readAp(252 /* IDR */);
+        await prep.go();
+    }
+    async writeReg(regId, val) {
+        return this.regOp(regId, val);
+    }
+    async readReg(regId) {
+        const buf = await this.regOp(regId, null);
+        const v = util_1.readUInt32LE(buf, 3);
+        return v;
+    }
+    async readDp(addr) {
+        return this.readReg(addr);
+    }
+    async readAp(addr) {
+        const prep = new PreparedDapCommand(this);
+        prep.writeDp(2 /* SELECT */, util_1.bank(addr));
+        prep.readReg(util_1.apReg(addr, 2 /* READ */));
+        return (await prep.go())[0];
+    }
+    writeDp(addr, data) {
+        if (addr === 2 /* SELECT */) {
+            if (data === this.dpSelect) {
+                return Promise.resolve();
+            }
+            this.dpSelect = data;
+        }
+        return this.writeReg(addr, data);
+    }
+    async writeAp(addr, data) {
+        if (addr === 0 /* CSW */) {
+            if (data === this.csw) {
+                return Promise.resolve();
+            }
+            this.csw = data;
+        }
+        const prep = new PreparedDapCommand(this);
+        prep.writeDp(2 /* SELECT */, util_1.bank(addr));
+        prep.writeReg(util_1.apReg(addr, 0 /* WRITE */), data);
+        await prep.go();
+    }
+    async close() {
+        return this.device.close();
+    }
+    async readRegRepeat(regId, cnt) {
+        util_1.assert(cnt <= 15);
+        const request = util_1.regRequest(regId);
+        const sendargs = [0, cnt];
+        for (let i = 0; i < cnt; ++i) {
+            sendargs.push(request);
+        }
+        const buf = await this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs);
+        if (buf[1] !== cnt) {
+            throw new Error(("(many) Bad #trans " + buf[1]));
+        }
+        else if (buf[2] !== 1) {
+            throw new Error(("(many) Bad transfer status " + buf[2]));
+        }
+        return buf.subarray(3, 3 + cnt * 4);
+    }
+    async writeRegRepeat(regId, data) {
+        const remainingLength = 64 - 1 - 1 - 2 - 1; // 14
+        util_1.assert(data.length <= remainingLength / 4);
+        /*
+            BYTE | BYTE *****| SHORT**********| BYTE *************| WORD *********|
+          > 0x06 | DAP Index | Transfer Count | Transfer Request  | Transfer Data |
+                 |***********|****************|*******************|+++++++++++++++|
+        */
+        const request = util_1.regRequest(regId, true);
+        const sendargs = [0, data.length, 0, request];
+        data.forEach((d) => {
+            // separate d into bytes
+            util_1.addInt32(sendargs, d);
         });
-    };
-    DAP.prototype.close = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.device.close()];
-            });
-        });
-    };
-    DAP.prototype.readRegRepeat = function (regId, cnt) {
-        return __awaiter(this, void 0, void 0, function () {
-            var request, sendargs, i, buf;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        util_1.assert(cnt <= 15);
-                        request = util_1.regRequest(regId);
-                        sendargs = [0, cnt];
-                        for (i = 0; i < cnt; ++i) {
-                            sendargs.push(request);
-                        }
-                        return [4 /*yield*/, this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs)];
-                    case 1:
-                        buf = _a.sent();
-                        if (buf[1] !== cnt) {
-                            throw new Error(("(many) Bad #trans " + buf[1]));
-                        }
-                        else if (buf[2] !== 1) {
-                            throw new Error(("(many) Bad transfer status " + buf[2]));
-                        }
-                        return [2 /*return*/, buf.slice(3, 3 + cnt * 4)];
-                }
-            });
-        });
-    };
-    DAP.prototype.writeRegRepeat = function (regId, data) {
-        return __awaiter(this, void 0, void 0, function () {
-            var request, sendargs, buf;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        util_1.assert(data.length <= 15);
-                        request = util_1.regRequest(regId, true);
-                        sendargs = [0, data.length];
-                        data.forEach(function (d) {
-                            sendargs.push(request);
-                            util_1.addInt32(sendargs, d);
-                        });
-                        return [4 /*yield*/, this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs)];
-                    case 1:
-                        buf = _a.sent();
-                        if (buf[2] !== 1) {
-                            throw new Error(("(many-wr) Bad transfer status " + buf[2]));
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    DAP.prototype.regOp = function (regId, val) {
-        return __awaiter(this, void 0, void 0, function () {
-            var request, sendargs, buf;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        request = util_1.regRequest(regId, val !== null);
-                        sendargs = [0, 1, request];
-                        if (val !== null) {
-                            util_1.addInt32(sendargs, val);
-                        }
-                        return [4 /*yield*/, this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs)];
-                    case 1:
-                        buf = _a.sent();
-                        if (buf[1] !== 1) {
-                            console.error("Make sure you have initialised the DAP connection.");
-                            throw new Error(("Bad #trans " + buf[1]));
-                        }
-                        else if (buf[2] !== 1) {
-                            if (buf[2] === 2) {
-                                throw new Error(("Transfer wait"));
-                            }
-                            throw new Error(("Bad transfer status " + buf[2]));
-                        }
-                        return [2 /*return*/, buf];
-                }
-            });
-        });
-    };
-    return DAP;
-}());
+        const buf = await this.dap.cmdNums(6 /* DAP_TRANSFER_BLOCK */, sendargs);
+        if (buf[3] !== 1) {
+            throw new Error(("(many-wr) Bad transfer status " + buf[2]));
+        }
+    }
+    async regOp(regId, val) {
+        const request = util_1.regRequest(regId, val !== null);
+        const sendargs = [0, 1, request];
+        if (val !== null) {
+            util_1.addInt32(sendargs, val);
+        }
+        const buf = await this.dap.cmdNums(5 /* DAP_TRANSFER */, sendargs);
+        if (buf[1] !== 1) {
+            console.error("Make sure you have initialised the DAP connection.");
+            throw new Error(("Bad #trans " + buf[1]));
+        }
+        else if (buf[2] !== 1) {
+            if (buf[2] === 2) {
+                throw new Error(("Transfer wait"));
+            }
+            throw new Error(("Bad transfer status " + buf[2]));
+        }
+        return buf;
+    }
+}
 exports.DAP = DAP;
 //# sourceMappingURL=dap.js.map
 
@@ -977,50 +680,15 @@ exports.DAP = DAP;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var dapjs_1 = __webpack_require__(2);
-var dapjs_2 = __webpack_require__(2);
-var webhid_1 = __webpack_require__(12);
-var device_selector_1 = __webpack_require__(13);
-var logger_1 = __webpack_require__(14);
-var arrToString = function (arr) {
-    var r = "";
-    for (var i = 0; i < arr.length; ++i) {
+const dapjs_1 = __webpack_require__(1);
+const dapjs_2 = __webpack_require__(1);
+const webhid_1 = __webpack_require__(13);
+const device_selector_1 = __webpack_require__(14);
+const logger_1 = __webpack_require__(15);
+const arrToString = (arr) => {
+    let r = "";
+    for (let i = 0; i < arr.length; ++i) {
         r += ("0000" + i).slice(-4) + ": " + ("00000000" + (arr[i] >>> 0).toString(16)).slice(-8);
         if (i !== arr.length - 1) {
             r += "\n";
@@ -1028,188 +696,116 @@ var arrToString = function (arr) {
     }
     return r;
 };
-var machineStateToString = function (s) {
+const machineStateToString = (s) => {
     return "REGS:\n" + arrToString(s.registers);
 };
-var DAPDemo = (function () {
-    function DAPDemo(logger) {
-        var _this = this;
+class DAPDemo {
+    constructor(logger) {
         /**
          * Define `choose` as ES6 arrow function so that `this` is bound to the instance of DAPDemo, rather than bound to
          * the source of the click event.
          */
-        this.choose = function () { return __awaiter(_this, void 0, void 0, function () {
-            var _a, info;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = this;
-                        return [4 /*yield*/, navigator.usb.requestDevice({ filters: [{ vendorId: 0x0d28 }] })];
-                    case 1:
-                        _a.device = _b.sent();
-                        this.deviceCode = this.device.serialNumber.slice(0, 4);
-                        return [4 /*yield*/, this.selector.lookupDevice(this.deviceCode)];
-                    case 2:
-                        info = _b.sent();
-                        this.selector.show(info);
-                        this.selector.enable();
-                        this.chooseButton.disabled = true;
-                        this.connectButton.disabled = false;
-                        return [2 /*return*/];
-                }
-            });
-        }); };
+        this.choose = async () => {
+            this.device = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0d28 }] });
+            this.deviceCode = this.device.serialNumber.slice(0, 4);
+            const info = await this.selector.lookupDevice(this.deviceCode);
+            this.selector.show(info);
+            this.selector.enable();
+            this.chooseButton.disabled = true;
+            this.connectButton.disabled = false;
+        };
         /**
          * Define `connect` as ES6 arrow function so that `this` is bound to the instance of DAPDemo, rather than bound to
          * the source of the click event.
          */
-        this.connect = function () { return __awaiter(_this, void 0, void 0, function () {
-            var _a, imp, isa, type, elements, _i, elements_1, elem;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        this.hid = new webhid_1.default(this.device);
-                        this.log("Opening device.");
-                        // open hid device
-                        return [4 /*yield*/, this.hid.open()];
-                    case 1:
-                        // open hid device
-                        _b.sent();
-                        this.log("Device opened.");
-                        this.dapDevice = new dapjs_1.DAP(this.hid);
-                        this.target = new dapjs_2.FlashTarget(this.dapDevice, dapjs_2.FlashTargets.get(this.deviceCode));
-                        this.log("Initialising device.");
-                        return [4 /*yield*/, this.target.init()];
-                    case 2:
-                        _b.sent();
-                        this.log("Halting target.");
-                        return [4 /*yield*/, this.target.halt()];
-                    case 3:
-                        _b.sent();
-                        this.log("Target halted.");
-                        return [4 /*yield*/, this.target.readCoreType()];
-                    case 4:
-                        _a = _b.sent(), imp = _a[0], isa = _a[1], type = _a[2];
-                        this.log("Connected to an ARM " + dapjs_1.CoreNames.get(type) + " (" + dapjs_1.ISANames.get(isa) + ")");
-                        this.selector.disable();
-                        this.connectButton.disabled = true;
-                        elements = Array.from(document.querySelectorAll(".when-connected"));
-                        for (_i = 0, elements_1 = elements; _i < elements_1.length; _i++) {
-                            elem = elements_1[_i];
-                            elem.disabled = false;
-                        }
-                        return [2 /*return*/];
+        this.connect = async () => {
+            this.hid = new webhid_1.default(this.device);
+            this.log("Opening device.");
+            // open hid device
+            await this.hid.open();
+            this.log("Device opened.");
+            this.dapDevice = new dapjs_1.DAP(this.hid);
+            this.target = new dapjs_2.FlashTarget(this.dapDevice, dapjs_2.FlashTargets.get(this.deviceCode));
+            this.log("Initialising device.");
+            await this.target.init();
+            this.log("Halting target.");
+            await this.target.halt();
+            this.log("Target halted.");
+            const [imp, isa, type] = await this.target.readCoreType();
+            this.log(`Connected to an ARM ${dapjs_1.CoreNames.get(type)} (${dapjs_1.ISANames.get(isa)})`);
+            this.selector.disable();
+            this.connectButton.disabled = true;
+            const elements = Array.from(document.querySelectorAll(".when-connected"));
+            for (const elem of elements) {
+                elem.disabled = false;
+            }
+        };
+        this.flash = async (f) => {
+            // Erase flash
+            await this.target.halt();
+            this.flashProgressBarContainer.style.display = "block";
+            console.log(f);
+            const xhr = new XMLHttpRequest();
+            if (this.deviceCode === "9900") {
+                f += ".hex";
+                xhr.responseType = "text";
+            }
+            else {
+                f += ".bin";
+                xhr.responseType = "arraybuffer";
+            }
+            xhr.open("GET", f, true);
+            xhr.onload = async (e) => {
+                if (this.deviceCode === "9900") {
+                    console.log("Flashing a micro:bit hex");
+                    const program = dapjs_2.FlashProgram.fromIntelHex(xhr.responseText);
+                    await this.target.program(program, (progress) => {
+                        // console.log(progress);
+                        this.flashProgressBar.style.width = `${progress * 100}%`;
+                    });
+                    this.log(`Successfully flashed binary.`);
+                    this.log("Done.");
+                    await this.target.reset();
                 }
-            });
-        }); };
-        this.flash = function (f) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            var xhr;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    // Erase flash
-                    return [4 /*yield*/, this.target.halt()];
-                    case 1:
-                        // Erase flash
-                        _a.sent();
-                        return [4 /*yield*/, this.target.flashInit()];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.target.eraseChip()];
-                    case 3:
-                        _a.sent();
-                        this.flashProgressBarContainer.style.display = "block";
-                        xhr = new XMLHttpRequest();
-                        xhr.open("GET", f, true);
-                        xhr.responseType = "arraybuffer";
-                        xhr.onload = function (e) { return __awaiter(_this, void 0, void 0, function () {
-                            var _this = this;
-                            var array;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        array = new Uint32Array(xhr.response);
-                                        this.log("Binary file " + array.length + " words long");
-                                        // Push binary to board
-                                        return [4 /*yield*/, this.target.flash(array, null, function (progress) {
-                                                _this.flashProgressBar.style.width = progress * 100 + "%";
-                                            })];
-                                    case 1:
-                                        // Push binary to board
-                                        _a.sent();
-                                        this.log("Successfully flashed binary.");
-                                        this.log("Done.");
-                                        return [4 /*yield*/, this.target.reset()];
-                                    case 2:
-                                        _a.sent();
-                                        // make sure we don't have any issues flashing twice in the same session.
-                                        this.target.flashUnInit();
-                                        return [2 /*return*/];
-                                }
-                            });
-                        }); };
-                        xhr.send();
-                        return [2 /*return*/];
+                else {
+                    console.log("Flashing a K64F binary");
+                    const array = new Uint32Array(xhr.response);
+                    const program = dapjs_2.FlashProgram.fromBinary(0, array);
+                    this.log(`Binary file ${array.length} words long`);
+                    // Push binary to board
+                    await this.target.program(program, (progress) => {
+                        this.flashProgressBar.style.width = `${progress * 100}%`;
+                    });
+                    this.log(`Successfully flashed binary.`);
+                    this.log("Done.");
+                    await this.target.reset();
+                    // make sure we don't have any issues flashing twice in the same session.
+                    this.target.flashUnInit();
                 }
-            });
-        }); };
-        this.halt = function () { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.target.halt()];
-                    case 1:
-                        _a.sent();
-                        this.log("Halted.");
-                        return [2 /*return*/];
-                }
-            });
-        }); };
-        this.resume = function () { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.target.resume()];
-                    case 1:
-                        _a.sent();
-                        this.log("Resumed.");
-                        return [2 /*return*/];
-                }
-            });
-        }); };
-        this.printRegisters = function () { return __awaiter(_this, void 0, void 0, function () {
-            var halt, st;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        halt = false;
-                        return [4 /*yield*/, this.target.halt()];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.snapshotMachineState()];
-                    case 2:
-                        st = _a.sent();
-                        this.clearLog();
-                        this.log(machineStateToString(st));
-                        return [2 /*return*/];
-                }
-            });
-        }); };
-        this.step = function () { return __awaiter(_this, void 0, void 0, function () {
-            var st;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.target.debug.step()];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.snapshotMachineState()];
-                    case 2:
-                        st = _a.sent();
-                        this.clearLog();
-                        this.log(machineStateToString(st));
-                        return [2 /*return*/];
-                }
-            });
-        }); };
+            };
+            xhr.send();
+        };
+        this.halt = async () => {
+            await this.target.halt();
+            this.log("Halted.");
+        };
+        this.resume = async () => {
+            await this.target.resume();
+            this.log("Resumed.");
+        };
+        this.printRegisters = async () => {
+            const halt = false;
+            await this.target.halt();
+            const st = await this.snapshotMachineState();
+            this.clearLog();
+            this.log(machineStateToString(st));
+        };
+        this.step = async () => {
+            await this.target.debug.step();
+            const st = await this.snapshotMachineState();
+            this.clearLog();
+            this.log(machineStateToString(st));
+        };
         this.selector = new device_selector_1.PlatformSelector("platform-chooser", "platform-detected");
         this.chooseButton = document.getElementById("choose");
         this.connectButton = document.getElementById("connect");
@@ -1227,75 +823,40 @@ var DAPDemo = (function () {
         this.stepButton.onclick = this.step;
         this.haltButton.onclick = this.halt;
         this.resumeButton.onclick = this.resume;
-        this.flashRedButton.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.flashProgressBar.style.width = "0%";
-                        this.flashProgressBar.className = "progress-bar progress-bar-danger";
-                        return [4 /*yield*/, this.flash("blinky-red.bin")];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); };
-        this.flashGreenButton.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.flashProgressBar.style.width = "0%";
-                        this.flashProgressBar.className = "progress-bar progress-bar-success";
-                        return [4 /*yield*/, this.flash("blinky-green.bin")];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); };
+        this.flashRedButton.onclick = async () => {
+            this.flashProgressBar.style.width = "0%";
+            this.flashProgressBar.className = "progress-bar progress-bar-danger";
+            await this.flash("blinky-red");
+        };
+        this.flashGreenButton.onclick = async () => {
+            this.flashProgressBar.style.width = "0%";
+            this.flashProgressBar.className = "progress-bar progress-bar-success";
+            await this.flash("blinky-green");
+        };
         this.logger = logger;
     }
-    DAPDemo.prototype.log = function (s) {
+    log(s) {
         this.logger.log("[demo] " + s);
-    };
-    DAPDemo.prototype.clearLog = function () {
+    }
+    clearLog() {
         this.logger.clear();
-    };
+    }
     /**
      * Snapshot the current state of the CPU. Reads all general-purpose registers, and returns them in an array.
      */
-    DAPDemo.prototype.snapshotMachineState = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var state, i, _a, _b;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0:
-                        state = {
-                            registers: [],
-                        };
-                        i = 0;
-                        _c.label = 1;
-                    case 1:
-                        if (!(i < 16)) return [3 /*break*/, 4];
-                        _a = state.registers;
-                        _b = i;
-                        return [4 /*yield*/, this.target.readCoreRegister(i)];
-                    case 2:
-                        _a[_b] = _c.sent();
-                        _c.label = 3;
-                    case 3:
-                        i++;
-                        return [3 /*break*/, 1];
-                    case 4: return [2 /*return*/, state];
-                }
-            });
-        });
-    };
-    return DAPDemo;
-}());
-window.onload = function () {
-    var logger = new logger_1.default("#trace");
-    var demo = new DAPDemo(logger);
+    async snapshotMachineState() {
+        const state = {
+            registers: [],
+        };
+        for (let i = 0; i < 16; i++) {
+            state.registers[i] = await this.target.readCoreRegister(i);
+        }
+        return state;
+    }
+}
+window.onload = () => {
+    const logger = new logger_1.default("#trace");
+    const demo = new DAPDemo(logger);
 };
 
 
@@ -1305,45 +866,10 @@ window.onload = function () {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var breakpoint_1 = __webpack_require__(6);
-var Debug = (function () {
-    function Debug(core) {
+const breakpoint_1 = __webpack_require__(6);
+class Debug {
+    constructor(core) {
         this.core = core;
         this.enabled = false;
         this.availableHWBreakpoints = [];
@@ -1355,194 +881,114 @@ var Debug = (function () {
      *
      * Also reads the number of available hardware breakpoints.
      */
-    Debug.prototype.setupFpb = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var fpcr, nbCode, nbLit, i;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.core.memory.read32(3758104576 /* FP_CTRL */)];
-                    case 1:
-                        fpcr = _a.sent();
-                        nbCode = ((fpcr >> 8) & 0x70) | ((fpcr >> 4) & 0xf);
-                        nbLit = (fpcr >> 7) & 0xf;
-                        this.totalHWBreakpoints = nbCode;
-                        console.debug(nbCode + " hardware breakpoints, " + nbLit + " literal comparators");
-                        return [4 /*yield*/, this.setFpbEnabled(false)];
-                    case 2:
-                        _a.sent();
-                        i = 0;
-                        _a.label = 3;
-                    case 3:
-                        if (!(i < nbCode)) return [3 /*break*/, 6];
-                        this.availableHWBreakpoints.push(3758104584 /* FP_COMP0 */ + (4 * i));
-                        return [4 /*yield*/, this.core.memory.write32(3758104584 /* FP_COMP0 */ + (i * 4), 0)];
-                    case 4:
-                        _a.sent();
-                        _a.label = 5;
-                    case 5:
-                        i++;
-                        return [3 /*break*/, 3];
-                    case 6: return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async setupFpb() {
+        // setup FPB (breakpoint)
+        const fpcr = await this.core.memory.read32(3758104576 /* FP_CTRL */);
+        const nbCode = ((fpcr >> 8) & 0x70) | ((fpcr >> 4) & 0xf);
+        const nbLit = (fpcr >> 7) & 0xf;
+        this.totalHWBreakpoints = nbCode;
+        console.debug(`${nbCode} hardware breakpoints, ${nbLit} literal comparators`);
+        await this.setFpbEnabled(false);
+        for (let i = 0; i < nbCode; i++) {
+            this.availableHWBreakpoints.push(3758104584 /* FP_COMP0 */ + (4 * i));
+            await this.core.memory.write32(3758104584 /* FP_COMP0 */ + (i * 4), 0);
+        }
+    }
     /**
      * Enable or disable the Flash Patch and Breakpoint unit (FPB).
      *
      * @param enabled
      */
-    Debug.prototype.setFpbEnabled = function (enabled) {
-        if (enabled === void 0) { enabled = true; }
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.enabled = enabled;
-                        return [4 /*yield*/, this.core.memory.write32(3758104576 /* FP_CTRL */, 2 /* FP_CTRL_KEY */ | (enabled ? 1 : 0))];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async setFpbEnabled(enabled = true) {
+        this.enabled = enabled;
+        await this.core.memory.write32(3758104576 /* FP_CTRL */, 2 /* FP_CTRL_KEY */ | (enabled ? 1 : 0));
+    }
     /**
      * Enable debugging on the target CPU
      */
-    Debug.prototype.enable = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.core.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async enable() {
+        await this.core.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ | 1 /* C_DEBUGEN */);
+    }
     /**
      * Set breakpoints at specified memory addresses.
      *
      * @param addrs An array of memory addresses at which to set breakpoints.
      */
-    Debug.prototype.setBreakpoint = function (addr) {
-        return __awaiter(this, void 0, void 0, function () {
-            var breakpoint, bkpt, regAddr;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (this.breakpoints.has(addr)) {
-                            breakpoint = this.breakpoints.get(addr);
-                            if (typeof breakpoint !== "number") {
-                                // already enabled
-                                console.warn("Breakpoint at " + addr.toString(16) + " already enabled.");
-                                return [2 /*return*/];
-                            }
-                        }
-                        if (!(addr < 0x20000000)) return [3 /*break*/, 5];
-                        if (!(this.availableHWBreakpoints.length > 0)) return [3 /*break*/, 3];
-                        if (!!this.enabled) return [3 /*break*/, 2];
-                        console.log("enabling fpb");
-                        return [4 /*yield*/, this.setFpbEnabled(true)];
-                    case 1:
-                        _a.sent();
-                        _a.label = 2;
-                    case 2:
-                        regAddr = this.availableHWBreakpoints.pop();
-                        console.log("using regAddr=" + regAddr.toString(16));
-                        bkpt = new breakpoint_1.HWBreakpoint(regAddr, this.core, addr);
-                        return [3 /*break*/, 4];
-                    case 3:
-                        bkpt = new breakpoint_1.SWBreakpoint(this.core, addr);
-                        _a.label = 4;
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
-                        bkpt = new breakpoint_1.SWBreakpoint(this.core, addr);
-                        _a.label = 6;
-                    case 6: return [4 /*yield*/, bkpt.set()];
-                    case 7:
-                        _a.sent();
-                        this.breakpoints.set(addr, bkpt);
-                        return [2 /*return*/];
+    async setBreakpoint(addr) {
+        if (this.breakpoints.has(addr)) {
+            // we already have a breakpoint there.
+            const breakpoint = this.breakpoints.get(addr);
+            if (typeof breakpoint !== "number") {
+                // already enabled
+                console.warn(`Breakpoint at ${addr.toString(16)} already enabled.`);
+                return;
+            }
+        }
+        let bkpt;
+        // choose where best to place a breakpoint
+        if (addr < 0x20000000) {
+            // we can use a HWBreakpoint
+            if (this.availableHWBreakpoints.length > 0) {
+                if (!this.enabled) {
+                    console.log("enabling fpb");
+                    await this.setFpbEnabled(true);
                 }
-            });
-        });
-    };
-    Debug.prototype.deleteBreakpoint = function (addr) {
-        return __awaiter(this, void 0, void 0, function () {
-            var bkpt;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!this.breakpoints.has(addr)) return [3 /*break*/, 3];
-                        bkpt = this.breakpoints.get(addr);
-                        if (!(typeof bkpt !== "number")) return [3 /*break*/, 2];
-                        return [4 /*yield*/, bkpt.clear()];
-                    case 1:
-                        _a.sent();
-                        if (bkpt instanceof breakpoint_1.HWBreakpoint) {
-                            // return the register address to the pool
-                            this.availableHWBreakpoints.push(bkpt.regAddr);
-                        }
-                        _a.label = 2;
-                    case 2:
-                        this.breakpoints.delete(addr);
-                        return [3 /*break*/, 4];
-                    case 3:
-                        console.warn("Breakpoint at " + addr.toString(16) + " does not exist.");
-                        _a.label = 4;
-                    case 4: return [2 /*return*/];
+                const regAddr = this.availableHWBreakpoints.pop();
+                console.log(`using regAddr=${regAddr.toString(16)}`);
+                bkpt = new breakpoint_1.HWBreakpoint(regAddr, this.core, addr);
+            }
+            else {
+                bkpt = new breakpoint_1.SWBreakpoint(this.core, addr);
+            }
+        }
+        else {
+            bkpt = new breakpoint_1.SWBreakpoint(this.core, addr);
+        }
+        await bkpt.set();
+        this.breakpoints.set(addr, bkpt);
+    }
+    async deleteBreakpoint(addr) {
+        if (this.breakpoints.has(addr)) {
+            const bkpt = this.breakpoints.get(addr);
+            if (typeof bkpt !== "number") {
+                await bkpt.clear();
+                if (bkpt instanceof breakpoint_1.HWBreakpoint) {
+                    // return the register address to the pool
+                    this.availableHWBreakpoints.push(bkpt.regAddr);
                 }
-            });
-        });
-    };
+            }
+            this.breakpoints.delete(addr);
+        }
+        else {
+            console.warn(`Breakpoint at ${addr.toString(16)} does not exist.`);
+        }
+    }
     /**
      * Step the processor forward by one instruction.
      */
-    Debug.prototype.step = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var dhcsr, interruptsMasked;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.core.memory.read32(3758157296 /* DHCSR */)];
-                    case 1:
-                        dhcsr = _a.sent();
-                        if (!(dhcsr & (4 /* C_STEP */ | 2 /* C_HALT */))) {
-                            console.error("Target is not halted.");
-                            return [2 /*return*/];
-                        }
-                        interruptsMasked = (8 /* C_MASKINTS */ & dhcsr) !== 0;
-                        if (!!interruptsMasked) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.core.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ |
-                                1 /* C_DEBUGEN */ |
-                                2 /* C_HALT */ |
-                                8 /* C_MASKINTS */)];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3: return [4 /*yield*/, this.core.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ |
-                            1 /* C_DEBUGEN */ |
-                            8 /* C_MASKINTS */ |
-                            4 /* C_STEP */)];
-                    case 4:
-                        _a.sent();
-                        return [4 /*yield*/, this.core.waitForHalt()];
-                    case 5:
-                        _a.sent();
-                        return [4 /*yield*/, this.core.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ |
-                                1 /* C_DEBUGEN */ |
-                                2 /* C_HALT */)];
-                    case 6:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return Debug;
-}());
+    async step() {
+        const dhcsr = await this.core.memory.read32(3758157296 /* DHCSR */);
+        if (!(dhcsr & (4 /* C_STEP */ | 2 /* C_HALT */))) {
+            console.error("Target is not halted.");
+            return;
+        }
+        const interruptsMasked = (8 /* C_MASKINTS */ & dhcsr) !== 0;
+        if (!interruptsMasked) {
+            await this.core.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ |
+                1 /* C_DEBUGEN */ |
+                2 /* C_HALT */ |
+                8 /* C_MASKINTS */);
+        }
+        await this.core.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ |
+            1 /* C_DEBUGEN */ |
+            8 /* C_MASKINTS */ |
+            4 /* C_STEP */);
+        await this.core.waitForHalt();
+        await this.core.memory.write32(3758157296 /* DHCSR */, -1604386816 /* DBGKEY */ |
+            1 /* C_DEBUGEN */ |
+            2 /* C_HALT */);
+    }
+}
 exports.Debug = Debug;
 //# sourceMappingURL=debug.js.map
 
@@ -1552,124 +998,40 @@ exports.Debug = Debug;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var HWBreakpoint = (function () {
-    function HWBreakpoint(regAddr, parent, addr) {
+class HWBreakpoint {
+    constructor(regAddr, parent, addr) {
         this.regAddr = regAddr;
         this.parent = parent;
         this.addr = addr;
     }
-    HWBreakpoint.prototype.set = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var bpMatch;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        bpMatch = ((this.addr & 0x2) ? 2 : 1) << 30;
-                        return [4 /*yield*/, this.parent.memory.write32(this.regAddr, this.addr & 0x1ffffffc | bpMatch | 1)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    HWBreakpoint.prototype.clear = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    /* clear hardware breakpoint */
-                    return [4 /*yield*/, this.parent.memory.write32(this.regAddr, 0)];
-                    case 1:
-                        /* clear hardware breakpoint */
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return HWBreakpoint;
-}());
+    async set() {
+        /* set hardware breakpoint */
+        const bpMatch = ((this.addr & 0x2) ? 2 : 1) << 30;
+        await this.parent.memory.write32(this.regAddr, this.addr & 0x1ffffffc | bpMatch | 1);
+    }
+    async clear() {
+        /* clear hardware breakpoint */
+        await this.parent.memory.write32(this.regAddr, 0);
+    }
+}
 exports.HWBreakpoint = HWBreakpoint;
-var SWBreakpoint = (function () {
-    function SWBreakpoint(parent, addr) {
+class SWBreakpoint {
+    constructor(parent, addr) {
         this.parent = parent;
         this.addr = addr;
     }
-    SWBreakpoint.prototype.set = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        // read the instruction from the CPU... pleeeeease be in thumb mode
-                        _a = this;
-                        return [4 /*yield*/, this.parent.memory.read16(this.addr)];
-                    case 1:
-                        // read the instruction from the CPU... pleeeeease be in thumb mode
-                        _a.instruction = _b.sent();
-                        return [4 /*yield*/, this.parent.memory.write16(this.addr, SWBreakpoint.BKPT_INSTRUCTION)];
-                    case 2:
-                        _b.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    SWBreakpoint.prototype.clear = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: 
-                    /* clear hardware breakpoint */
-                    return [4 /*yield*/, this.parent.memory.write16(this.addr, this.instruction)];
-                    case 1:
-                        /* clear hardware breakpoint */
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    SWBreakpoint.BKPT_INSTRUCTION = 0xbe00;
-    return SWBreakpoint;
-}());
+    async set() {
+        // read the instruction from the CPU... pleeeeease be in thumb mode
+        this.instruction = await this.parent.memory.read16(this.addr);
+        await this.parent.memory.write16(this.addr, SWBreakpoint.BKPT_INSTRUCTION);
+    }
+    async clear() {
+        /* clear hardware breakpoint */
+        await this.parent.memory.write16(this.addr, this.instruction);
+    }
+}
+SWBreakpoint.BKPT_INSTRUCTION = 0xbe00;
 exports.SWBreakpoint = SWBreakpoint;
 //# sourceMappingURL=breakpoint.js.map
 
@@ -1679,45 +1041,41 @@ exports.SWBreakpoint = SWBreakpoint;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var util_1 = __webpack_require__(0);
-var Memory = (function () {
-    function Memory(dev) {
+const dap_1 = __webpack_require__(3);
+const util_1 = __webpack_require__(0);
+class PreparedMemoryCommand {
+    constructor(dap) {
+        this.cmd = new dap_1.PreparedDapCommand(dap);
+    }
+    write32(addr, data) {
+        this.cmd.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */);
+        this.cmd.writeAp(4 /* TAR */, addr);
+        this.cmd.writeAp(12 /* DRW */, data);
+    }
+    write16(addr, data) {
+        data = data << ((addr & 0x02) << 3);
+        this.cmd.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 1 /* CSW_SIZE16 */);
+        this.cmd.writeAp(4 /* TAR */, addr);
+        this.cmd.writeAp(12 /* DRW */, data);
+    }
+    read32(addr) {
+        this.cmd.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */);
+        this.cmd.writeAp(4 /* TAR */, addr);
+        this.cmd.readAp(12 /* DRW */);
+    }
+    read16(addr) {
+        this.cmd.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 1 /* CSW_SIZE16 */);
+        this.cmd.writeAp(4 /* TAR */, addr);
+        this.cmd.readAp(12 /* DRW */);
+    }
+    async go() {
+        return this.cmd.go();
+    }
+}
+exports.PreparedMemoryCommand = PreparedMemoryCommand;
+class Memory {
+    constructor(dev) {
         this.dev = dev;
     }
     /**
@@ -1726,125 +1084,68 @@ var Memory = (function () {
      * @param addr Memory address to write to
      * @param data Data to write (values above 2**32 will be truncated)
      */
-    Memory.prototype.write32 = function (addr, data) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.dev.writeAp(12 /* DRW */, data)];
-                    case 3:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async write32(addr, data) {
+        const prep = new dap_1.PreparedDapCommand(this.dev);
+        prep.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */);
+        prep.writeAp(4 /* TAR */, addr);
+        prep.writeAp(12 /* DRW */, data);
+        await prep.go();
+    }
     /**
      * Write a 16-bit word to the specified (half word-aligned) memory address.
      *
      * @param addr Memory address to write to
      * @param data Data to write (values above 2**16 will be truncated)
      */
-    Memory.prototype.write16 = function (addr, data) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 1 /* CSW_SIZE16 */)];
-                    case 1:
-                        _a.sent();
-                        data = data << ((addr & 0x02) << 3);
-                        return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.dev.writeAp(12 /* DRW */, data)];
-                    case 3:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async write16(addr, data) {
+        data = data << ((addr & 0x02) << 3);
+        const prep = new dap_1.PreparedDapCommand(this.dev);
+        prep.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 1 /* CSW_SIZE16 */);
+        prep.writeAp(4 /* TAR */, addr);
+        prep.writeAp(12 /* DRW */, data);
+        await prep.go();
+    }
     /**
      * Read a 32-bit word from the specified (word-aligned) memory address.
      *
      * @param addr Memory address to read from.
      */
-    Memory.prototype.read32 = function (addr) {
-        return __awaiter(this, void 0, void 0, function () {
-            var e_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        _a.trys.push([3, 5, , 8]);
-                        return [4 /*yield*/, this.dev.readAp(12 /* DRW */)];
-                    case 4: return [2 /*return*/, _a.sent()];
-                    case 5:
-                        e_1 = _a.sent();
-                        // transfer wait, try again.
-                        return [4 /*yield*/, util_1.delay(100)];
-                    case 6:
-                        // transfer wait, try again.
-                        _a.sent();
-                        return [4 /*yield*/, this.read32(addr)];
-                    case 7: return [2 /*return*/, _a.sent()];
-                    case 8: return [2 /*return*/];
-                }
-            });
-        });
-    };
+    async read32(addr) {
+        const prep = new dap_1.PreparedDapCommand(this.dev);
+        prep.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */);
+        prep.writeAp(4 /* TAR */, addr);
+        prep.readAp(12 /* DRW */);
+        try {
+            return (await prep.go())[0];
+        }
+        catch (e) {
+            // transfer wait, try again.
+            await util_1.delay(100);
+            return await this.read32(addr);
+        }
+    }
     /**
      * Read a 16-bit word from the specified (half word-aligned) memory address.
      *
      * @param addr Memory address to read from.
      */
-    Memory.prototype.read16 = function (addr) {
-        return __awaiter(this, void 0, void 0, function () {
-            var val, e_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 1 /* CSW_SIZE16 */)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        _a.trys.push([3, 5, , 8]);
-                        return [4 /*yield*/, this.dev.readAp(12 /* DRW */)];
-                    case 4:
-                        val = _a.sent();
-                        return [3 /*break*/, 8];
-                    case 5:
-                        e_2 = _a.sent();
-                        // transfer wait, try again.
-                        return [4 /*yield*/, util_1.delay(100)];
-                    case 6:
-                        // transfer wait, try again.
-                        _a.sent();
-                        return [4 /*yield*/, this.read16(addr)];
-                    case 7:
-                        val = _a.sent();
-                        return [3 /*break*/, 8];
-                    case 8:
-                        val = (val >> ((addr & 0x02) << 3) & 0xffff);
-                        return [2 /*return*/, val];
-                }
-            });
-        });
-    };
+    async read16(addr) {
+        const prep = new dap_1.PreparedDapCommand(this.dev);
+        prep.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 1 /* CSW_SIZE16 */);
+        prep.writeAp(4 /* TAR */, addr);
+        prep.readAp(12 /* DRW */);
+        let val;
+        try {
+            val = (await prep.go())[0];
+        }
+        catch (e) {
+            // transfer wait, try again.
+            await util_1.delay(100);
+            val = await this.read16(addr);
+        }
+        val = (val >> ((addr & 0x02) << 3) & 0xffff);
+        return val;
+    }
     /**
      * Reads a block of memory from the specified memory address.
      *
@@ -1852,181 +1153,82 @@ var Memory = (function () {
      * @param words Number of words to read
      * @param pageSize Memory page size
      */
-    Memory.prototype.readBlock = function (addr, words, pageSize) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            var funs, bufs, end, ptr, _loop_1, _i, funs_1, f, result;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        funs = [function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-                                return [2 /*return*/, Promise.resolve()];
-                            }); }); }];
-                        bufs = [];
-                        end = addr + words * 4;
-                        ptr = addr;
-                        _loop_1 = function () {
-                            var nextptr = ptr + pageSize;
-                            if (ptr === addr) {
-                                nextptr &= ~(pageSize - 1);
-                            }
-                            var len = Math.min(nextptr - ptr, end - ptr);
-                            var ptr0 = ptr;
-                            util_1.assert((len & 3) === 0);
-                            funs.push(function () { return __awaiter(_this, void 0, void 0, function () {
-                                var _a, _b;
-                                return __generator(this, function (_c) {
-                                    switch (_c.label) {
-                                        case 0:
-                                            _b = (_a = bufs).push;
-                                            return [4 /*yield*/, this.readBlockCore(ptr0, len >> 2)];
-                                        case 1:
-                                            _b.apply(_a, [_c.sent()]);
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); });
-                            ptr = nextptr;
-                        };
-                        while (ptr < end) {
-                            _loop_1();
-                        }
-                        _i = 0, funs_1 = funs;
-                        _a.label = 1;
-                    case 1:
-                        if (!(_i < funs_1.length)) return [3 /*break*/, 4];
-                        f = funs_1[_i];
-                        return [4 /*yield*/, f()];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        _i++;
-                        return [3 /*break*/, 1];
-                    case 4: return [4 /*yield*/, util_1.bufferConcat(bufs)];
-                    case 5:
-                        result = _a.sent();
-                        return [2 /*return*/, result.slice(0, words * 4)];
-                }
+    async readBlock(addr, words, pageSize) {
+        const funs = [async () => Promise.resolve()];
+        const bufs = [];
+        const end = addr + words * 4;
+        let ptr = addr;
+        while (ptr < end) {
+            let nextptr = ptr + pageSize;
+            if (ptr === addr) {
+                nextptr &= ~(pageSize - 1);
+            }
+            const len = Math.min(nextptr - ptr, end - ptr);
+            const ptr0 = ptr;
+            util_1.assert((len & 3) === 0);
+            funs.push(async () => {
+                bufs.push(await this.readBlockCore(ptr0, len >> 2));
             });
-        });
-    };
+            ptr = nextptr;
+        }
+        for (const f of funs) {
+            await f();
+        }
+        const result = await util_1.bufferConcat(bufs);
+        return result.subarray(0, words * 4);
+    }
     /**
      * Write a block of memory to the specified memory address.
      *
      * @param addr Memory address to write to.
      * @param words Array of 32-bit words to write to memory.
      */
-    Memory.prototype.writeBlock = function (addr, words) {
-        return __awaiter(this, void 0, void 0, function () {
-            var blSz, i;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (words.length === 0) {
-                            return [2 /*return*/];
-                        }
-                        if (!(1 > 0)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.writeBlockCore(addr, words)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                    case 2:
-                        blSz = 10;
-                        i = 0;
-                        _a.label = 3;
-                    case 3:
-                        if (!(i < Math.ceil(words.length / blSz))) return [3 /*break*/, 6];
-                        return [4 /*yield*/, this.writeBlockCore(addr + i * blSz * 4, words.slice(i * blSz, i * blSz + blSz))];
-                    case 4:
-                        _a.sent();
-                        _a.label = 5;
-                    case 5:
-                        i++;
-                        return [3 /*break*/, 3];
-                    case 6: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    Memory.prototype.readBlockCore = function (addr, words) {
-        return __awaiter(this, void 0, void 0, function () {
-            var lastSize, blocks, i, b;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
-                    case 2:
-                        _a.sent();
-                        lastSize = words % 15;
-                        if (lastSize === 0) {
-                            lastSize = 15;
-                        }
-                        blocks = [];
-                        i = 0;
-                        _a.label = 3;
-                    case 3:
-                        if (!(i < Math.ceil(words / 15))) return [3 /*break*/, 6];
-                        return [4 /*yield*/, this.dev.readRegRepeat(util_1.apReg(12 /* DRW */, 2 /* READ */), i === blocks.length - 1 ? lastSize : 15)];
-                    case 4:
-                        b = _a.sent();
-                        blocks.push(b);
-                        _a.label = 5;
-                    case 5:
-                        i++;
-                        return [3 /*break*/, 3];
-                    case 6: return [2 /*return*/, util_1.bufferConcat(blocks)];
-                }
-            });
-        });
-    };
-    Memory.prototype.writeBlockCore = function (addr, words) {
-        return __awaiter(this, void 0, void 0, function () {
-            var blSz, reg, i, e_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 7, , 12]);
-                        return [4 /*yield*/, this.dev.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.dev.writeAp(4 /* TAR */, addr)];
-                    case 2:
-                        _a.sent();
-                        blSz = 12;
-                        reg = util_1.apReg(12 /* DRW */, 0 /* WRITE */);
-                        i = 0;
-                        _a.label = 3;
-                    case 3:
-                        if (!(i < Math.ceil(words.length / blSz))) return [3 /*break*/, 6];
-                        return [4 /*yield*/, this.dev.writeRegRepeat(reg, words.slice(i * blSz, i * blSz + blSz))];
-                    case 4:
-                        _a.sent();
-                        _a.label = 5;
-                    case 5:
-                        i++;
-                        return [3 /*break*/, 3];
-                    case 6: return [3 /*break*/, 12];
-                    case 7:
-                        e_3 = _a.sent();
-                        if (!e_3.dapWait) return [3 /*break*/, 10];
-                        console.debug("transfer wait, write block");
-                        return [4 /*yield*/, util_1.delay(100)];
-                    case 8:
-                        _a.sent();
-                        return [4 /*yield*/, this.writeBlockCore(addr, words)];
-                    case 9: return [2 /*return*/, _a.sent()];
-                    case 10: throw e_3;
-                    case 11: return [3 /*break*/, 12];
-                    case 12: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return Memory;
-}());
+    async writeBlock(addr, words) {
+        if (words.length === 0) {
+            return;
+        }
+        return this.writeBlockCore(addr, words);
+    }
+    async readBlockCore(addr, words) {
+        const prep = new dap_1.PreparedDapCommand(this.dev);
+        prep.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */);
+        prep.writeAp(4 /* TAR */, addr);
+        await prep.go();
+        let lastSize = words % 15;
+        if (lastSize === 0) {
+            lastSize = 15;
+        }
+        const blocks = [];
+        for (let i = 0; i < Math.ceil(words / 15); i++) {
+            const b = await this.dev.readRegRepeat(util_1.apReg(12 /* DRW */, 2 /* READ */), i === blocks.length - 1 ? lastSize : 15);
+            blocks.push(b);
+        }
+        return util_1.bufferConcat(blocks);
+    }
+    async writeBlockCore(addr, words) {
+        try {
+            const blSz = 14;
+            const reg = util_1.apReg(12 /* DRW */, 0 /* WRITE */);
+            const prep = new dap_1.PreparedDapCommand(this.dev);
+            prep.writeAp(0 /* CSW */, 587202640 /* CSW_VALUE */ | 2 /* CSW_SIZE32 */);
+            prep.writeAp(4 /* TAR */, addr);
+            for (let i = 0; i < Math.ceil(words.length / blSz); i++) {
+                prep.writeRegRepeat(reg, words.subarray(i * blSz, i * blSz + blSz));
+            }
+            await prep.go();
+        }
+        catch (e) {
+            if (e.dapWait) {
+                console.debug(`transfer wait, write block`);
+                await util_1.delay(100);
+                return await this.writeBlockCore(addr, words);
+            }
+            else {
+                throw e;
+            }
+        }
+    }
+}
 exports.Memory = Memory;
 //# sourceMappingURL=memory.js.map
 
@@ -2036,217 +1238,97 @@ exports.Memory = Memory;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var util_1 = __webpack_require__(0);
-var CMSISDAP = (function () {
-    function CMSISDAP(hid) {
+const util_1 = __webpack_require__(0);
+class CMSISDAP {
+    constructor(hid) {
         this.maxSent = 1;
         this.hid = hid;
     }
-    CMSISDAP.prototype.resetTarget = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.cmdNums(10 /* DAP_RESET_TARGET */, [])];
-            });
-        });
-    };
-    CMSISDAP.prototype.disconnect = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.cmdNums(3 /* DAP_DISCONNECT */, [])];
-            });
-        });
-    };
-    CMSISDAP.prototype.cmdNums = function (op, data) {
-        return __awaiter(this, void 0, void 0, function () {
-            var buf;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        data.unshift(op);
-                        return [4 /*yield*/, this.send(data)];
-                    case 1:
-                        buf = _a.sent();
-                        if (buf[0] !== op) {
-                            throw new Error("Bad response for " + op + " -> " + buf[0]);
-                        }
-                        switch (op) {
-                            case 2 /* DAP_CONNECT */:
-                            case 0 /* DAP_INFO */:
-                            case 5 /* DAP_TRANSFER */:
-                                break;
-                            default:
-                                if (buf[1] !== 0) {
-                                    throw new Error("Bad status for " + op + " -> " + buf[1]);
-                                }
-                        }
-                        return [2 /*return*/, buf];
+    async resetTarget() {
+        return this.cmdNums(10 /* DAP_RESET_TARGET */, []);
+    }
+    async disconnect() {
+        return this.cmdNums(3 /* DAP_DISCONNECT */, []);
+    }
+    async cmdNums(op, data) {
+        data.unshift(op);
+        const buf = await this.send(data);
+        if (buf[0] !== op) {
+            throw new Error(`Bad response for ${op} -> ${buf[0]}`);
+        }
+        switch (op) {
+            case 2 /* DAP_CONNECT */:
+            case 0 /* DAP_INFO */:
+            case 5 /* DAP_TRANSFER */:
+            case 6 /* DAP_TRANSFER_BLOCK */:
+                break;
+            default:
+                if (buf[1] !== 0) {
+                    throw new Error(`Bad status for ${op} -> ${buf[1]}`);
                 }
-            });
-        });
-    };
-    CMSISDAP.prototype.connect = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var v, buf;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        console.log("Connecting...");
-                        return [4 /*yield*/, this.info(254 /* PACKET_COUNT */)];
-                    case 1:
-                        v = _a.sent();
-                        if (v) {
-                            this.maxSent = v;
-                        }
-                        else {
-                            throw new Error("DAP_INFO returned invalid packet count.");
-                        }
-                        return [4 /*yield*/, this.cmdNums(17 /* DAP_SWJ_CLOCK */, util_1.addInt32(null, 1000000))];
-                    case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.cmdNums(2 /* DAP_CONNECT */, [0])];
-                    case 3:
-                        buf = _a.sent();
-                        if (buf[1] !== 1) {
-                            throw new Error("SWD mode not enabled.");
-                        }
-                        return [4 /*yield*/, this.cmdNums(17 /* DAP_SWJ_CLOCK */, util_1.addInt32(null, 1000000))];
-                    case 4:
-                        _a.sent();
-                        return [4 /*yield*/, this.cmdNums(4 /* DAP_TRANSFER_CONFIGURE */, [0, 0x50, 0, 0, 0])];
-                    case 5:
-                        _a.sent();
-                        return [4 /*yield*/, this.cmdNums(19 /* DAP_SWD_CONFIGURE */, [0])];
-                    case 6:
-                        _a.sent();
-                        return [4 /*yield*/, this.jtagToSwd()];
-                    case 7:
-                        _a.sent();
-                        console.log("Connected");
-                        return [2 /*return*/];
+        }
+        return buf;
+    }
+    async connect() {
+        console.log("Connecting...");
+        const v = await this.info(254 /* PACKET_COUNT */);
+        if (v) {
+            this.maxSent = v;
+        }
+        else {
+            throw new Error("DAP_INFO returned invalid packet count.");
+        }
+        await this.cmdNums(17 /* DAP_SWJ_CLOCK */, util_1.addInt32(null, 10000000));
+        const buf = await this.cmdNums(2 /* DAP_CONNECT */, [0]);
+        if (buf[1] !== 1) {
+            throw new Error("SWD mode not enabled.");
+        }
+        await this.cmdNums(17 /* DAP_SWJ_CLOCK */, util_1.addInt32(null, 10000000));
+        await this.cmdNums(4 /* DAP_TRANSFER_CONFIGURE */, [0, 0x50, 0, 0, 0]);
+        await this.cmdNums(19 /* DAP_SWD_CONFIGURE */, [0]);
+        await this.jtagToSwd();
+        console.log("Connected");
+    }
+    async jtagToSwd() {
+        const arrs = [
+            [56, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+            [16, 0x9e, 0xe7],
+            [56, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
+            [8, 0x00],
+        ];
+        for (const arr of arrs) {
+            await this.swjSequence(arr);
+        }
+    }
+    async swjSequence(data) {
+        return this.cmdNums(18 /* DAP_SWJ_SEQUENCE */, data);
+    }
+    async info(id) {
+        const buf = await this.cmdNums(0 /* DAP_INFO */, [id]);
+        if (buf[1] === 0) {
+            return null;
+        }
+        switch (id) {
+            case 240 /* CAPABILITIES */:
+            case 254 /* PACKET_COUNT */:
+            case 255 /* PACKET_SIZE */:
+                if (buf[1] === 1) {
+                    return buf[2];
                 }
-            });
-        });
-    };
-    CMSISDAP.prototype.jtagToSwd = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var arrs, _i, arrs_1, arr;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        arrs = [
-                            [56, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
-                            [16, 0x9e, 0xe7],
-                            [56, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
-                            [8, 0x00],
-                        ];
-                        _i = 0, arrs_1 = arrs;
-                        _a.label = 1;
-                    case 1:
-                        if (!(_i < arrs_1.length)) return [3 /*break*/, 4];
-                        arr = arrs_1[_i];
-                        return [4 /*yield*/, this.swjSequence(arr)];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        _i++;
-                        return [3 /*break*/, 1];
-                    case 4: return [2 /*return*/];
+                else if (buf[1] === 2) {
+                    return buf[3] << 8 | buf[2];
                 }
-            });
-        });
-    };
-    CMSISDAP.prototype.swjSequence = function (data) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, this.cmdNums(18 /* DAP_SWJ_SEQUENCE */, data)];
-            });
-        });
-    };
-    CMSISDAP.prototype.info = function (id) {
-        return __awaiter(this, void 0, void 0, function () {
-            var buf;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.cmdNums(0 /* DAP_INFO */, [id])];
-                    case 1:
-                        buf = _a.sent();
-                        if (buf[1] === 0) {
-                            return [2 /*return*/, null];
-                        }
-                        switch (id) {
-                            case 240 /* CAPABILITIES */:
-                            case 254 /* PACKET_COUNT */:
-                            case 255 /* PACKET_SIZE */:
-                                if (buf[1] === 1) {
-                                    return [2 /*return*/, buf[2]];
-                                }
-                                else if (buf[1] === 2) {
-                                    return [2 /*return*/, buf[3] << 8 | buf[2]];
-                                }
-                        }
-                        return [2 /*return*/, buf.slice(2, buf[1] + 2 - 1)]; // .toString("utf8")
-                }
-            });
-        });
-    };
-    CMSISDAP.prototype.send = function (command) {
-        return __awaiter(this, void 0, void 0, function () {
-            var array, response;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        array = Uint8Array.from(command);
-                        console.log(array);
-                        return [4 /*yield*/, this.hid.write(array.buffer)];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.hid.read()];
-                    case 2:
-                        response = _a.sent();
-                        return [2 /*return*/, new Uint8Array(response.buffer)];
-                }
-            });
-        });
-    };
-    return CMSISDAP;
-}());
+        }
+        return buf.subarray(2, buf[1] + 2 - 1); // .toString("utf8")
+    }
+    async send(command) {
+        const array = Uint8Array.from(command);
+        await this.hid.write(array.buffer);
+        const response = await this.hid.read();
+        return new Uint8Array(response.buffer);
+    }
+}
 exports.CMSISDAP = CMSISDAP;
 //# sourceMappingURL=cmsis_dap.js.map
 
@@ -2256,56 +1338,11 @@ exports.CMSISDAP = CMSISDAP;
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var cortex_m_1 = __webpack_require__(1);
-var K64F_1 = __webpack_require__(10);
-var NRF51_1 = __webpack_require__(11);
-var analyzer = new Uint32Array([
+const cortex_m_1 = __webpack_require__(2);
+const K64F_1 = __webpack_require__(10);
+const NRF51_1 = __webpack_require__(11);
+const analyzer = new Uint32Array([
     0x2180468c, 0x2600b5f0, 0x4f2c2501, 0x447f4c2c, 0x1c2b0049, 0x425b4033, 0x40230872, 0x085a4053,
     0x425b402b, 0x40534023, 0x402b085a, 0x4023425b, 0x085a4053, 0x425b402b, 0x40534023, 0x402b085a,
     0x4023425b, 0x085a4053, 0x425b402b, 0x40534023, 0x402b085a, 0x4023425b, 0x085a4053, 0x425b402b,
@@ -2314,183 +1351,104 @@ var analyzer = new Uint32Array([
     0x0a12595b, 0x42b1405a, 0x43d2d1f5, 0x4560c004, 0x2000d1e7, 0x2200bdf0, 0x46c0e7f8, 0x000000b6,
     0xedb88320, 0x00000044,
 ]);
-var FlashTarget = (function (_super) {
-    __extends(FlashTarget, _super);
-    function FlashTarget(device, platform) {
-        var _this = _super.call(this, device) || this;
-        _this.platform = platform;
-        _this.inited = false;
-        return _this;
+class FlashTarget extends cortex_m_1.CortexM {
+    constructor(device, platform) {
+        super(device);
+        this.platform = platform;
+        this.inited = false;
     }
     /**
      * Initialise the flash driver on the chip. Must be called before any of the other
      * flash-related methods.
      */
-    FlashTarget.prototype.flashInit = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var result;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (this.inited) {
-                            return [2 /*return*/];
-                        }
-                        // reset and halt
-                        return [4 /*yield*/, this.reset(true)];
-                    case 1:
-                        // reset and halt
-                        _a.sent();
-                        // make sure we're in Thumb mode.
-                        return [4 /*yield*/, this.writeCoreRegister(16 /* XPSR */, 1 << 24)];
-                    case 2:
-                        // make sure we're in Thumb mode.
-                        _a.sent();
-                        return [4 /*yield*/, this.writeCoreRegister(9 /* R9 */, this.platform.flashAlgo.staticBase)];
-                    case 3:
-                        _a.sent();
-                        if (!this.platform.flashAlgo.analyzerSupported) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.memory.writeBlock(this.platform.flashAlgo.analyzerAddress, analyzer)];
-                    case 4:
-                        _a.sent();
-                        _a.label = 5;
-                    case 5: return [4 /*yield*/, this.runCode(this.platform.flashAlgo.instructions, this.platform.flashAlgo.loadAddress, this.platform.flashAlgo.pcInit, this.platform.flashAlgo.loadAddress + 1, this.platform.flashAlgo.stackPointer, true, 0, 0, 0, 0)];
-                    case 6:
-                        result = _a.sent();
-                        this.inited = true;
-                        return [2 /*return*/, result];
-                }
-            });
-        });
-    };
+    async flashInit() {
+        if (this.inited) {
+            return;
+        }
+        // reset and halt
+        await this.reset(true);
+        // make sure we're in Thumb mode.
+        await this.writeCoreRegister(16 /* XPSR */, 1 << 24);
+        await this.writeCoreRegister(9 /* R9 */, this.platform.flashAlgo.staticBase);
+        // upload analyzer
+        if (this.platform.flashAlgo.analyzerSupported) {
+            await this.memory.writeBlock(this.platform.flashAlgo.analyzerAddress, analyzer);
+        }
+        const result = await this.runCode(this.platform.flashAlgo.instructions, this.platform.flashAlgo.loadAddress, this.platform.flashAlgo.pcInit, this.platform.flashAlgo.loadAddress + 1, this.platform.flashAlgo.stackPointer, true, 0, 0, 0, 0);
+        this.inited = true;
+        return result;
+    }
     /**
      * Erase _all_ data stored in flash on the chip.
      */
-    FlashTarget.prototype.eraseChip = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var result;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!!this.inited) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.flashInit()];
-                    case 1:
-                        _a.sent();
-                        _a.label = 2;
-                    case 2: return [4 /*yield*/, this.runCode(this.platform.flashAlgo.instructions, this.platform.flashAlgo.loadAddress, this.platform.flashAlgo.pcEraseAll, this.platform.flashAlgo.loadAddress + 1, this.platform.flashAlgo.stackPointer, false, 0, 0, 0)];
-                    case 3:
-                        result = _a.sent();
-                        return [2 /*return*/, result];
-                }
-            });
-        });
-    };
+    async eraseChip() {
+        if (!this.inited) {
+            await this.flashInit();
+        }
+        const result = await this.runCode(this.platform.flashAlgo.instructions, this.platform.flashAlgo.loadAddress, this.platform.flashAlgo.pcEraseAll, this.platform.flashAlgo.loadAddress + 1, this.platform.flashAlgo.stackPointer, false, 0, 0, 0);
+        return result;
+    }
     /**
      * Upload a program to flash memory on the chip.
      * TODO: add a callback to provide progress data
      *
      * @param data Array of 32-bit integers to write to flash.
      */
-    FlashTarget.prototype.flash = function (data, address, progressCb) {
-        return __awaiter(this, void 0, void 0, function () {
-            var pageSizeWords, bufferAddress, flashStart, ptr, wordPtr, pageData, flashAddress;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!!this.inited) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.flashInit()];
-                    case 1:
-                        _a.sent();
-                        _a.label = 2;
-                    case 2: return [4 /*yield*/, this.halt()];
-                    case 3:
-                        _a.sent();
-                        pageSizeWords = this.platform.flashAlgo.pageSize / 4;
-                        bufferAddress = this.platform.flashAlgo.pageBuffers[0];
-                        flashStart = address || this.platform.flashAlgo.flashStart;
-                        ptr = 0;
-                        _a.label = 4;
-                    case 4:
-                        if (!(ptr < data.byteLength)) return [3 /*break*/, 7];
-                        wordPtr = ptr / 4;
-                        pageData = data.slice(wordPtr, wordPtr + pageSizeWords);
-                        flashAddress = flashStart + ptr;
-                        this.platform.overrideSecurityBits(flashAddress, pageData);
-                        return [4 /*yield*/, this.memory.writeBlock(bufferAddress, pageData)];
-                    case 5:
-                        _a.sent();
-                        return [4 /*yield*/, this.runCode(this.platform.flashAlgo.instructions, this.platform.flashAlgo.loadAddress, this.platform.flashAlgo.pcProgramPage, // pc
-                            this.platform.flashAlgo.loadAddress + 1, // lr
-                            this.platform.flashAlgo.stackPointer, // sp
-                            /* upload? */
-                            ptr === 0, 
-                            /* args */
-                            flashAddress, this.platform.flashAlgo.pageSize, bufferAddress)];
-                    case 6:
-                        _a.sent();
-                        if (progressCb) {
-                            progressCb(ptr / data.byteLength);
-                        }
-                        ptr += pageData.byteLength;
-                        return [3 /*break*/, 4];
-                    case 7:
-                        if (progressCb) {
-                            progressCb(1.0);
-                        }
-                        return [2 /*return*/];
-                }
+    async flash(data, address, progressCb) {
+        if (!this.inited) {
+            await this.flashInit();
+        }
+        const pageSizeWords = this.platform.flashAlgo.pageSize / 4;
+        const bufferAddress = this.platform.flashAlgo.pageBuffers[0];
+        const flashStart = address || this.platform.flashAlgo.flashStart;
+        // How far through `data` are we (in bytes)
+        let ptr = 0;
+        while (ptr < data.byteLength) {
+            const wordPtr = ptr / 4;
+            const pageData = data.subarray(wordPtr, wordPtr + pageSizeWords);
+            const flashAddress = flashStart + ptr;
+            await this.memory.writeBlock(bufferAddress, pageData);
+            await this.runCode(this.platform.flashAlgo.instructions, this.platform.flashAlgo.loadAddress, this.platform.flashAlgo.pcProgramPage, // pc
+            this.platform.flashAlgo.loadAddress + 1, // lr
+            this.platform.flashAlgo.stackPointer, // sp
+            /* upload? */
+            false, 
+            /* args */
+            flashAddress, this.platform.flashAlgo.pageSize, bufferAddress);
+            if (progressCb) {
+                progressCb(ptr / data.byteLength);
+            }
+            ptr += pageData.byteLength;
+        }
+        if (progressCb) {
+            progressCb(1.0);
+        }
+    }
+    async program(program, progressCb) {
+        await this.flashInit();
+        await this.eraseChip();
+        const totalBytes = program.totalByteLength();
+        let cumulativeBytes = 0;
+        const startTime = Date.now();
+        for (const section of program.sections) {
+            await this.flash(section.data, section.address, (progress) => {
+                progressCb((cumulativeBytes + progress * section.data.byteLength) / totalBytes);
             });
-        });
-    };
-    FlashTarget.prototype.program = function (program, progressCb) {
-        return __awaiter(this, void 0, void 0, function () {
-            var totalBytes, cumulativeBytes, _loop_1, this_1, _i, _a, section;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        totalBytes = program.totalByteLength();
-                        cumulativeBytes = 0;
-                        _loop_1 = function (section) {
-                            var sectionBytes;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        sectionBytes = 0;
-                                        return [4 /*yield*/, this_1.flash(section.data, section.address, function (progress) {
-                                                sectionBytes += section.data.length * progress;
-                                                progressCb((cumulativeBytes + sectionBytes) / totalBytes);
-                                            })];
-                                    case 1:
-                                        _a.sent();
-                                        cumulativeBytes += sectionBytes;
-                                        return [2 /*return*/];
-                                }
-                            });
-                        };
-                        this_1 = this;
-                        _i = 0, _a = program.sections;
-                        _b.label = 1;
-                    case 1:
-                        if (!(_i < _a.length)) return [3 /*break*/, 4];
-                        section = _a[_i];
-                        return [5 /*yield**/, _loop_1(section)];
-                    case 2:
-                        _b.sent();
-                        _b.label = 3;
-                    case 3:
-                        _i++;
-                        return [3 /*break*/, 1];
-                    case 4:
-                        progressCb(1.0);
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    FlashTarget.prototype.flashUnInit = function () {
+            cumulativeBytes += section.data.byteLength;
+            progressCb(cumulativeBytes / totalBytes);
+        }
+        const endTime = Date.now();
+        const elapsedTime = endTime - startTime;
+        const transferRate = totalBytes / elapsedTime; // B/ms == kB/s
+        console.debug(`Transfer took ${elapsedTime / 1000} s`);
+        console.debug(`Transfered ${totalBytes} bytes at ${transferRate} kB/s`);
+        await this.flashUnInit();
+        progressCb(1.0);
+    }
+    flashUnInit() {
         this.inited = false;
-    };
-    return FlashTarget;
-}(cortex_m_1.CortexM));
+    }
+}
 exports.FlashTarget = FlashTarget;
 exports.FlashTargets = new Map();
 exports.FlashTargets.set("0240", new K64F_1.K64F());
@@ -2504,7 +1462,7 @@ exports.FlashTargets.set("9900", new NRF51_1.NRF51());
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var K64F_FLASH_ALGO = {
+const K64F_FLASH_ALGO = {
     analyzerAddress: 0x1ffff000,
     analyzerSupported: true,
     flashSize: 0x100000,
@@ -2561,52 +1519,51 @@ var K64F_FLASH_ALGO = {
     stackPointer: 0x20001000,
     staticBase: 0x20000000 + 0x20 + 0x474,
 };
-var K64F = (function () {
-    function K64F() {
+class K64F {
+    constructor() {
         this.flashAlgo = K64F_FLASH_ALGO;
     }
-    K64F.prototype.overrideSecurityBits = function (address, data) {
-        var u8data = new Uint8Array(data.buffer);
+    overrideSecurityBits(address, data) {
+        const u8data = new Uint8Array(data.buffer);
         // Kinetis security values and addresses
-        var SECURITY_START = 0x400;
-        var SECURITY_SIZE = 16;
-        var FPROT_ADDR = 0x408;
-        var FPROT_ADDR_END = 0x40c;
-        var FPROT_SIZE = 4;
-        var FSEC_ADDR = 0x40c;
-        var FSEC_VAL = 0xFE;
-        var FOPT_ADDR = 0x40d;
-        var FOPT_VAL = 0xFF;
-        var FEPROT_ADDR = 0x40e;
-        var FEPROT_VAL = 0xFF;
-        var FDPROT_ADDR = 0x40f;
-        var FDPROT_VAL = 0xFF;
+        const SECURITY_START = 0x400;
+        const SECURITY_SIZE = 16;
+        const FPROT_ADDR = 0x408;
+        const FPROT_ADDR_END = 0x40c;
+        const FPROT_SIZE = 4;
+        const FSEC_ADDR = 0x40c;
+        const FSEC_VAL = 0xFE;
+        const FOPT_ADDR = 0x40d;
+        const FOPT_VAL = 0xFF;
+        const FEPROT_ADDR = 0x40e;
+        const FEPROT_VAL = 0xFF;
+        const FDPROT_ADDR = 0x40f;
+        const FDPROT_VAL = 0xFF;
         if (address <= SECURITY_START && address + u8data.byteLength > SECURITY_START + SECURITY_SIZE) {
-            for (var i = FPROT_ADDR; i < FPROT_ADDR_END; i++) {
+            for (let i = FPROT_ADDR; i < FPROT_ADDR_END; i++) {
                 if (u8data[i - address] !== 0xff) {
                     u8data[i - address] = 0xff;
-                    console.debug("FCF[" + (i - FPROT_ADDR) + "] at addr " + i + " changed to " + u8data[i - address]);
+                    console.debug(`FCF[${i - FPROT_ADDR}] at addr ${i} changed to ${u8data[i - address]}`);
                 }
             }
             if (u8data[FSEC_ADDR - address] !== FSEC_VAL) {
                 u8data[FSEC_ADDR - address] = FSEC_VAL;
-                console.debug("FSEC at addr " + FSEC_ADDR + " changed to " + FSEC_VAL);
+                console.debug(`FSEC at addr ${FSEC_ADDR} changed to ${FSEC_VAL}`);
             }
             if (u8data[FOPT_ADDR - address] === 0x00) {
-                console.debug("FOPT set to restricted value 0x00");
+                console.debug(`FOPT set to restricted value 0x00`);
             }
             if (u8data[FEPROT_ADDR - address] !== FEPROT_VAL) {
                 u8data[FEPROT_ADDR - address] = FEPROT_VAL;
-                console.debug("FEPROT at addr " + FEPROT_ADDR + " changed to " + FEPROT_VAL);
+                console.debug(`FEPROT at addr ${FEPROT_ADDR} changed to ${FEPROT_VAL}`);
             }
             if (u8data[FDPROT_ADDR - address] !== FDPROT_VAL) {
                 u8data[FDPROT_ADDR - address] = FDPROT_VAL;
-                console.debug("FDPROT at addr " + FDPROT_ADDR + " changed to " + FDPROT_VAL);
+                console.debug(`FDPROT at addr ${FDPROT_ADDR} changed to ${FDPROT_VAL}`);
             }
         }
-    };
-    return K64F;
-}());
+    }
+}
 exports.K64F = K64F;
 //# sourceMappingURL=K64F.js.map
 
@@ -2617,7 +1574,7 @@ exports.K64F = K64F;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var NRF51_FLASH_ALGO = {
+const NRF51_FLASH_ALGO = {
     analyzerAddress: 0x20003000,
     analyzerSupported: true,
     beginData: 0x20002000,
@@ -2644,20 +1601,101 @@ var NRF51_FLASH_ALGO = {
     stackPointer: 0x20001000,
     staticBase: 0x20000170,
 };
-var NRF51 = (function () {
-    function NRF51() {
+class NRF51 {
+    constructor() {
         this.flashAlgo = NRF51_FLASH_ALGO;
     }
-    NRF51.prototype.overrideSecurityBits = function (address, data) {
+    overrideSecurityBits(address, data) {
         /* empty */
-    };
-    return NRF51;
-}());
+    }
+}
 exports.NRF51 = NRF51;
 //# sourceMappingURL=NRF51.js.map
 
 /***/ }),
 /* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const util_1 = __webpack_require__(0);
+class FlashSection {
+    constructor(address, data) {
+        this.address = address;
+        this.data = data;
+        /* empty */
+    }
+    toString() {
+        return `${this.data.byteLength} bytes @ ${this.address.toString(16)}`;
+    }
+}
+exports.FlashSection = FlashSection;
+class FlashProgram {
+    constructor(sections) {
+        this.sections = sections;
+    }
+    static fromIntelHex(hex) {
+        const lines = hex.split(/\n/);
+        let upperAddr = 0;
+        let startAddr = 0;
+        let current = null;
+        const chunks = [];
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (line.substr(0, 1) !== ":") {
+                throw new Error(`Invaild line in hex file: ${i + 1}`);
+            }
+            else {
+                const length = parseInt(line.substr(1, 2), 16);
+                const addr = upperAddr + parseInt(line.substr(3, 4), 16);
+                const fieldType = parseInt(line.substr(7, 2), 16);
+                const data = line.substr(9, length * 2);
+                if (fieldType === 0x00) {
+                    if (current && addr !== startAddr + (current.length / 2)) {
+                        // non-contiguous
+                        const sectionData = util_1.hex2bin(current);
+                        chunks.push(new FlashSection(startAddr, new Uint32Array(sectionData.buffer)));
+                        current = "";
+                        startAddr = addr;
+                    }
+                    else if (!current) {
+                        startAddr = addr;
+                        current = "";
+                    }
+                    current += data;
+                }
+                else if (fieldType === 0x01) {
+                    // EOF
+                    break;
+                }
+                else if (fieldType === 0x02) {
+                    // extended segment address record
+                    upperAddr = parseInt(data, 16) << 4;
+                }
+                else if (fieldType === 0x04) {
+                    // extended linear address record
+                    upperAddr = parseInt(data, 16) << 16;
+                }
+            }
+        }
+        return new FlashProgram(chunks);
+    }
+    static fromBinary(addr, bin) {
+        return new FlashProgram([new FlashSection(addr, bin)]);
+    }
+    totalByteLength() {
+        return this.sections.map((s) => s.data.byteLength).reduce((x, y) => x + y);
+    }
+    toString() {
+        return this.sections.toString();
+    }
+}
+exports.FlashProgram = FlashProgram;
+//# sourceMappingURL=FlashProgram.js.map
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2772,50 +1810,15 @@ exports.default = HID;
 //# sourceMappingURL=hid.js.map
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var PlatformSelector = (function () {
-    function PlatformSelector(id, devices) {
-        var elem = document.getElementById(id);
+class PlatformSelector {
+    constructor(id, devices) {
+        const elem = document.getElementById(id);
         this.deviceElement = document.getElementById(devices);
         if (elem.nodeName === "SELECT") {
             this.element = elem;
@@ -2826,66 +1829,58 @@ var PlatformSelector = (function () {
         }
         this.deviceCache = new Map();
     }
-    PlatformSelector.prototype.show = function (platform) {
+    show(platform) {
         this.deviceElement.innerHTML =
-            "<option value='" + platform.productCode + "' id='" + platform.productCode + "'>" + platform.name + "</option>";
+            `<option value='${platform.productCode}' id='${platform.productCode}'>${platform.name}</option>`;
         this.element.value = platform.productCode;
-    };
-    PlatformSelector.prototype.enable = function () {
+    }
+    enable() {
         this.element.disabled = false;
-    };
-    PlatformSelector.prototype.disable = function () {
+    }
+    disable() {
         this.element.disabled = true;
-    };
-    PlatformSelector.prototype.lookupDevice = function (code) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            var xhr;
-            return __generator(this, function (_a) {
-                if (this.deviceCache.has(code)) {
-                    return [2 /*return*/, this.deviceCache.get(code)];
-                }
-                xhr = new XMLHttpRequest();
-                xhr.open("get", "https://developer.mbed.org/api/v3/platforms/" + code, true);
-                xhr.responseType = "json";
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        xhr.onload = function (e) {
-                            var device = {
-                                name: xhr.response.name,
-                                productCode: xhr.response.productcode,
-                            };
-                            _this.deviceCache.set(code, device);
-                            resolve(device);
-                        };
-                        xhr.send();
-                    })];
-            });
+    }
+    async lookupDevice(code) {
+        if (this.deviceCache.has(code)) {
+            return this.deviceCache.get(code);
+        }
+        const xhr = new XMLHttpRequest();
+        xhr.open("get", `https://developer.mbed.org/api/v3/platforms/${code}`, true);
+        xhr.responseType = "json";
+        return new Promise((resolve, reject) => {
+            xhr.onload = (e) => {
+                const device = {
+                    name: xhr.response.name,
+                    productCode: xhr.response.productcode,
+                };
+                this.deviceCache.set(code, device);
+                resolve(device);
+            };
+            xhr.send();
         });
-    };
-    return PlatformSelector;
-}());
+    }
+}
 exports.PlatformSelector = PlatformSelector;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var HTMLLogger = (function () {
-    function HTMLLogger(selector) {
+class HTMLLogger {
+    constructor(selector) {
         this.element = document.querySelector(selector);
     }
-    HTMLLogger.prototype.log = function (data) {
+    log(data) {
         this.element.innerHTML = this.element.innerHTML + data + "\n";
-    };
-    HTMLLogger.prototype.clear = function () {
+    }
+    clear() {
         this.element.innerHTML = "";
-    };
-    return HTMLLogger;
-}());
+    }
+}
 exports.default = HTMLLogger;
 
 
