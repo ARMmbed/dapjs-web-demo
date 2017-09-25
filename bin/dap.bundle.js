@@ -1845,7 +1845,7 @@ class PlatformSelector {
             return this.deviceCache.get(code);
         }
         const xhr = new XMLHttpRequest();
-        xhr.open("get", `https://developer.mbed.org/api/v3/platforms/${code}`, true);
+        xhr.open("get", `https://os.mbed.com/api/v3/platforms/${code}/`, true);
         xhr.responseType = "json";
         return new Promise((resolve, reject) => {
             xhr.onload = (e) => {
