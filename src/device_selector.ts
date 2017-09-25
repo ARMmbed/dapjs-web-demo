@@ -43,7 +43,7 @@ export class PlatformSelector {
         }
 
         const xhr = new XMLHttpRequest();
-        xhr.open("get", `https://developer.mbed.org/api/v3/platforms/${code}`, true);
+        xhr.open("get", `https://os.mbed.com/api/v3/platforms/${code}/`, true);
         xhr.responseType = "json";
 
         return new Promise<IPlatform>((resolve, reject) => {
