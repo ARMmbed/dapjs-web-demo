@@ -1760,7 +1760,7 @@ var HID = (function () {
                         return [4 /*yield*/, this.device.selectConfiguration(1)];
                     case 2:
                         _b.sent();
-                        hids = this.device.configuration.interfaces.filter(function (intf) { return intf.alternates[0].interfaceClass == 0x03; });
+                        hids = this.device.configuration.interfaces.filter(function (intf) { return intf.alternates[0].interfaceClass == 0xFF; });
                         if (hids.length == 0) {
                             throw 'No HID interfaces found.';
                         }
