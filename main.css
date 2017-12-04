@@ -1,0 +1,18 @@
+body {
+    font-family: 'Open Sans';            
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+
+    padding-top: 20px;
+}
+
+.demo_head {
+    margin-top: 20px;
+}
+
+.letter-ol {
+    list-style-type: lower-alpha;
+}
