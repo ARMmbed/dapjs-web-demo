@@ -2,50 +2,29 @@
 <html lang="en_GB">
 
     <head>
-
         <title>WebUSB tester</title>
-
-        <!-- Origin Trial Token, feature = WebUSB (For Chrome M57+), origin = https://matthewelse.github.io, expires = 2017-09-01 -->
-        <meta http-equiv="origin-trial" data-feature="WebUSB (For Chrome M57+)" data-expires="2017-09-01" content="Agg1dUAd6HgoimGMqfcSd5GfQp8An+pGicw7v9s94bosQcSkQTo0R6p85N0+HDc5yS5eMDzfJXnJgdVMRhAawQEAAABWeyJvcmlnaW4iOiJodHRwczovL21hdHRoZXdlbHNlLmdpdGh1Yi5pbzo0NDMiLCJmZWF0dXJlIjoiV2ViVVNCMiIsImV4cGlyeSI6MTUwNDI1NTQyMX0="> 
-
-        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-        <script src="bin/dap.bundle.js"></script>
-        <script src="lib/flat-ui/dist/js/flat-ui.min.js"></script>
-
-        <link href="lib/flat-ui/dist/css/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="lib/flat-ui/dist/css/flat-ui.min.css" />
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
-
-        <style type="text/css">
-            body {
-                font-family: 'Open Sans';            
-            }
-
-            .container {
-                max-width: 900px;
-                margin: 0 auto;
-
-                padding-top: 20px;
-            }
-
-            .demo_head {
-                margin-top: 20px;
-            }
-
-            .letter-ol {
-                list-style-type: lower-alpha;
-            }
-        </style>
+        <!-- Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+        <!-- main style -->
+        <link rel="stylesheet" href="main.css">
+        <!-- DAP.js -->
+        <script type="text/javascript" src="bin/dap.bundle.js"></script>
+        <!-- main.js -->
+        <script type="text/javascript" src="main.js"></script>
     </head>
 
     <body>
-
         <div class='container'>
             <p style="display: none" id="noWebUSB" class="palette palette-alizarin">
             It looks like your browser does not support WebUSB, or does not have it enabled. For instructions about enabling it, <a href="https://developers.google.com/web/updates/2016/03/access-usb-devices-on-the-web#before_we_start" style="color: #000;">click here</a>.
             </p>
 
-            <p class="lead demo_head">DAP.js Demo</p>
+            <p class="demo_head">DAP.js Demo</p>
 
             <p>
             Flash and debug mbed enabled development boards in the browser
@@ -66,7 +45,7 @@
                                 Select a device:
                             </p>
                             <p>
-                                <button id='choose' class="btn btn-primary">Choose</button>
+                                <button onclick="selectBoard()" class="btn btn-primary">Choose</button>
                             </p>
                         </li>
                         <li>
@@ -75,7 +54,7 @@
                             </p>
                             <p>
                                 <select id="platform-chooser" class="form-control" disabled>
-                                    <optgroup label="Detected" id="platform-detected">
+                                    <optgroup id="platform-detected" label="Detected">
                                     </optgroup>
                                     <optgroup label="Others">
                                         <option value="generic">Generic Cortex-M (no flash support)</option>
@@ -85,7 +64,7 @@
                                 </select>
                             </p>
                             <p>
-                                <button id='connect' class="btn btn-success" disabled>Connect</button>
+                                <button id='connect' onclick="connect()" class="btn btn-success" disabled>Connect</button>
                             </p>
                         </li>
                         <li>
@@ -94,8 +73,8 @@
                             </p>
                             <p>
                                 <div class="btn-group">
-                                    <button id='flash-green' class="btn btn-success when-connected" disabled>Flash Green</button>
-                                    <button id='flash-red' class="btn btn-danger when-connected" disabled>Flash Red</button>
+                                    <button onclick="flash('binaries/blinky-green')" class="btn btn-success when-connected" disabled>Flash Green</button>
+                                    <button onclick="flash('binaries/blinky-red')" class="btn btn-danger when-connected" disabled>Flash Red</button>
                                 </div>
                             </p>
                             <div id='progress-container' style='display: none'>
@@ -111,29 +90,25 @@
                             </p>
                             <p>
                                 <div class="btn-group">
-                                    <button id='halt' class="btn btn-danger when-connected" disabled>Halt</button>
-                                    <button id='resume' class="btn btn-primary when-connected" disabled>Resume</button>
+                                    <button onclick="halt()" class="btn btn-danger when-connected" disabled>Halt</button>
+                                    <button onclick="resume()" class="btn btn-primary when-connected" disabled>Resume</button>
                                 </div>
                             </p>
                             <p>
-                                <button id='step-instruction' class="btn btn-info when-connected" disabled>Step</button>
+                                <button onclick="step()" class="btn btn-info when-connected" disabled>Step</button>
                             </p>
                             <p>
-                                <button id='registers' class="btn btn-info when-connected" disabled>Read Registers</button>
+                                <button onclick="printRegisters()" class="btn btn-info when-connected" disabled>Read Registers</button>
                             </p>
-                            <!-- <p>
-                                <button id='breakpoints' class="btn btn-info when-connected" disabled>Print Breakpoints</button>
-                            </p> -->
                         </li>
                     </ol>
                 </div>
 
-                <div class="div-md-8">
-                    <pre id="trace"></pre>
+                <div class="col-md-8">
+                    <pre id="logger"></pre>
                 </div>
             </div>
         </div>
 
     </body>
-
 </html>

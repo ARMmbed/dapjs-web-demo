@@ -1,0 +1,37 @@
+body {
+    font-family: 'Open Sans';            
+}
+
+pre {
+    padding: 8px;
+    margin: 0 0 15px;
+    font-size: 13px;
+    line-height: 1.72222;
+    color: inherit;
+    white-space: pre;
+    background-color: #fff;
+    border: 2px solid #e7e9ec;
+    border-radius: 6px;
+}
+
+p {
+    margin: 0 0 15px;
+    font-size: 18px;
+    line-height: 1.8em;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+
+    padding-top: 20px;
+}
+
+.demo_head {
+    margin-top: 20px;
+    font-size: 30px;
+}
+
+.letter-ol {
+    list-style-type: lower-alpha;
+}
