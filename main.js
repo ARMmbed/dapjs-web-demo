@@ -1,4 +1,4 @@
- const arrToString = (arr) => {
+ function arrToString(arr) {
     let r = "";
     for (let i = 0; i < arr.length; ++i) {
         r += ("0000" + i).slice(-4) + ": " + ("00000000" + (arr[i] >>> 0).toString(16)).slice(-8);
@@ -8,18 +8,18 @@
         }
     }
     return r;
-};
+}
 
-const machineStateToString = (s) => {
+function machineStateToString(s) {
     return "REGS:\n" + arrToString(s.registers);
-};
+}
 
-const resume = async () => {
+async function resume() {
     await this.target.resume();
     log("Resumed.");
 }
 
-const printRegisters = async () => {
+async function printRegisters() {
     const halt = false;
 
     await this.target.halt();
@@ -29,7 +29,7 @@ const printRegisters = async () => {
     log(machineStateToString(st));
 }
 
-const step = async () => {
+async function step() {
     await this.target.debug.step();
     const st = await snapshotMachineState();
 
@@ -37,19 +37,19 @@ const step = async () => {
     log(machineStateToString(st));
 }
 
-const log = (data) => {
+function log(data) {
     logger = document.getElementById("logger");
     logger.innerHTML = logger.innerHTML + data + "\n";
 }
 
-const clearLog = () => {
+function clearLog() {
     document.getElementById("logger").innerHTML = "";
 }
 
 /**
  * Snapshot the current state of the CPU. Reads all general-purpose registers, and returns them in an array.
  */
-const snapshotMachineState = async () => {
+async function snapshotMachineState() {
     const state = {
         registers: [],
     };
@@ -59,7 +59,7 @@ const snapshotMachineState = async () => {
     return state;
 }
 
-const connect = async () => {
+async function connect() {
     this.hid = new DAPjs.HID(this.device);
 
     log("Opening device.");
@@ -94,28 +94,28 @@ const connect = async () => {
     }
 }
 
-const halt = async () => {
+async function halt() {
     await this.target.halt();
     log("Halted.");
 }
 
-const flash = async (f) => {
+async function flash(binary){
     // Erase flash
     await this.target.halt();
     this.flashProgressBar.style.width = "0%";
     this.flashProgressBarContainer.style.display = "block";
 
-    console.log(f);
+    console.log(binary);
 
     const xhr = new XMLHttpRequest();
     if (this.deviceCode === "9900") {
-        f += ".hex";
+        binary += ".hex";
         xhr.responseType = "text";
     } else {
-        f += ".bin";
+        binary += ".bin";
         xhr.responseType = "arraybuffer";
     }
-    xhr.open("GET", f, true);
+    xhr.open("GET", binary, true);
 
     xhr.onload = async (e) => {
         if (this.deviceCode === "9900") {
@@ -156,7 +156,7 @@ const flash = async (f) => {
     xhr.send();
 }
 
-const selectBoard = async () => {
+async function selectBoard() {
     this.device = await navigator.usb.requestDevice({ filters: [{vendorId: 0x0d28}]});
     this.deviceCode = this.device.serialNumber.slice(0, 4);
     const platform = await this.selector.lookupDevice(this.deviceCode);
@@ -165,7 +165,7 @@ const selectBoard = async () => {
     document.getElementById("platform-chooser").innerHTML = `<option value='${platform.productCode}' id='${platform.productCode}'>${platform.name}</option>`;
 }
 
-window.onload = () => {
+window.onload = function() {
     this.flashProgressBar = document.getElementById('flash-progress');
     this.flashProgressBarContainer = document.getElementById('progress-container');
     this.selector = new DAPjs.PlatformSelector();
